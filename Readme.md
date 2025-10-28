@@ -24,15 +24,11 @@ groupdeal
 │
 ├── infrastructure      # 인프라 계층
 │   ├── common
+│   ├── client           # 외부 연동
+│   │   └── pg           # PG(결제)
 │   └── {domain}
 │       ├── entity       # JPA 엔티티
 │       └── repository   # 저장소 구현체
-│
-├── external           # 외부 연동 계층
-│   └── pg             # PG(결제) 연동
-│       ├── portone
-│       ├── toss
-│       └── ...
 │
 └── global            # 전역 설정
     ├── config
@@ -69,13 +65,7 @@ groupdeal
     - JPA 엔티티 (기술 종속적)
     - Repository 구현체 (Adapter 패턴)
     - Domain ↔ Entity 변환
-
-### External (외부 연동 계층)
-- **역할**: 외부 API 통신
-- **특징**: 
-    - PG, OAuth 등 외부 서비스 클라이언트
-    - Mediator 패턴으로 여러 PG사 통합 관리
-
+    - PG, OAuth 등 외부 API 통신 (Mediator 패턴으로 통합 관리)
 
 ### Global (전역 설정)
 - **역할**: 애플리케이션 전역 설정, 공통 예외 처리
@@ -91,7 +81,5 @@ groupdeal
 
 ```
 Presentation → Application → Domain ← Infrastructure
-                    ↓
-                 External
 ```
 ---
