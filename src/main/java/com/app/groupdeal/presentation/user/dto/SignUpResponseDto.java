@@ -10,14 +10,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class LoginResponseDto {
+public class SignUpResponseDto {
 
     private Long userId;
     private String email;
     private String nickname;
 
-    public static LoginResponseDto of(User user) {
-        return LoginResponseDto.builder()
+    public static SignUpResponseDto of(User user) {
+        return SignUpResponseDto.builder()
                 .userId(user.getUserId())
                 .email(user.getEmail())
                 .nickname(user.getNickname())
