@@ -1,6 +1,6 @@
 package com.app.groupdeal.presentation.user.controller;
 
-import com.app.groupdeal.application.user.facade.LoginService;
+import com.app.groupdeal.application.user.facade.AuthFacadeService;
 import com.app.groupdeal.presentation.common.dto.ApiResponse;
 import com.app.groupdeal.presentation.user.dto.SignUpRequestDto;
 import com.app.groupdeal.presentation.user.dto.SignUpResponseDto;
@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1")
 public class UserController {
 
-    private final LoginService loginService;
+    private final AuthFacadeService authFacadeService;
 
     @PostMapping("/auth/signup")
     public ResponseEntity<ApiResponse<SignUpResponseDto>> signUp(@Valid @RequestBody SignUpRequestDto request){
-        SignUpResponseDto response = loginService.signUp(request);
+        SignUpResponseDto response = authFacadeService.signUp(request);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
