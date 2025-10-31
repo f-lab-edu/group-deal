@@ -37,4 +37,11 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(HttpSession httpSession){
+        httpSession.invalidate();
+        return ResponseEntity.ok(ApiResponse.success());
+    }
+
+
 }

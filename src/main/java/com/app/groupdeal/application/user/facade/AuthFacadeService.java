@@ -6,6 +6,7 @@ import com.app.groupdeal.presentation.user.dto.LoginRequestDto;
 import com.app.groupdeal.presentation.user.dto.LoginResponseDto;
 import com.app.groupdeal.presentation.user.dto.SignUpRequestDto;
 import com.app.groupdeal.presentation.user.dto.SignUpResponseDto;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
