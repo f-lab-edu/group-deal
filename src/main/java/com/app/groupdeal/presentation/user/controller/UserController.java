@@ -1,6 +1,8 @@
 package com.app.groupdeal.presentation.user.controller;
 
 import com.app.groupdeal.application.user.facade.AuthFacadeService;
+import com.app.groupdeal.global.error.ErrorType;
+import com.app.groupdeal.global.error.exception.BusinessException;
 import com.app.groupdeal.presentation.common.dto.ApiResponse;
 import com.app.groupdeal.presentation.user.dto.LoginRequestDto;
 import com.app.groupdeal.presentation.user.dto.LoginResponseDto;
@@ -9,6 +11,7 @@ import com.app.groupdeal.presentation.user.dto.SignUpResponseDto;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,7 +42,15 @@ public class UserController {
 
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(HttpSession httpSession){
+
+        Long userId = (Long) httpSession.getAttribute("userId");
+
+        if (userId == null) {
+            throw new BusinessException(ErrorType.UNAUTHORIZED);
+        }
+
         httpSession.invalidate();
+
         return ResponseEntity.ok(ApiResponse.success());
     }
 
