@@ -1,0 +1,29 @@
+package com.app.groupdeal.global.config.jpa;
+
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.lang.NonNull;
+import org.springframework.util.StringUtils;
+
+import java.util.Optional;
+
+public class AuditorAwareImpl implements AuditorAware<String> {
+
+    private final HttpServletRequest httpServletRequest;
+
+    public AuditorAwareImpl(HttpServletRequest httpServletRequest) {
+        this.httpServletRequest = httpServletRequest;
+    }
+
+    @NonNull
+    @Override
+    public Optional<String> getCurrentAuditor() {
+        String modifiedBy = httpServletRequest.getRequestURI();
+        if(!StringUtils.hasText(modifiedBy)) {
+            modifiedBy = "unknown";
+        }
+        return Optional.of(modifiedBy);
+    }
+
+}
