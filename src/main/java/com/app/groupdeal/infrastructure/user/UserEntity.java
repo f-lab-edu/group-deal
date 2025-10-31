@@ -33,6 +33,14 @@ public class UserEntity extends BaseEntity {
         this.nickname = nickname;
     }
 
+    public static UserEntity from(User user) {
+        return UserEntity.builder()
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .nickname(user.getNickname())
+                .build();
+    }
+
     public User toDomain(){
         return User.builder()
                 .userId(userId)
@@ -41,9 +49,5 @@ public class UserEntity extends BaseEntity {
                 .nickname(nickname)
                 .build();
     }
-
-
-
-
 
 }

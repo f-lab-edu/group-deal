@@ -26,17 +26,7 @@ public class User extends BaseDomain {
         this.password = encryptPassword;
     }
 
-    public boolean isValidEmail(){
-        return email != null && !email.contains("@");
-    }
-
-
     public UserEntity toEntity() {
-        return UserEntity.builder()
-                .userId(userId)
-                .email(email)
-                .password(password)
-                .nickname(nickname)
-                .build();
+        return UserEntity.from(this);
     }
 }
