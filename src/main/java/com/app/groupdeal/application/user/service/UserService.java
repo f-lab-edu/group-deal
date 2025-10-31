@@ -33,6 +33,21 @@ public class UserService {
         return userRepository.save(user);
     }
 
+
+    public User login(String email, String password) {
+
+        // 이메일 확인
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(ErrorType.INVALID_LOGIN_CREDENTIALS));
+
+        // 비밀번호 확인
+        if(!user.isPasswordMatch(password, passwordEncoder)) {
+            throw new BusinessException(ErrorType.INVALID_LOGIN_CREDENTIALS);
+        }
+
+        return user;
+    }
+
     private void validateDuplicatedEmail(String email) {
         if(userRepository.existsByEmail(email)){
             throw new BusinessException(ErrorType.DUPLICATE_USER_EMAIL);
@@ -45,4 +60,5 @@ public class UserService {
             throw new BusinessException(ErrorType.DUPLICATE_USER_NICKNAME);
         }
     }
+
 }

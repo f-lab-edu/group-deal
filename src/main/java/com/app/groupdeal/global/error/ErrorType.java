@@ -7,6 +7,7 @@ public enum ErrorType {
 
     // 인증, 인가
     FORBIDDEN("A-001", "접근 권한이 없습니다."),
+    INVALID_LOGIN_CREDENTIALS("A-002", "이메일 또는 비밀번호가 올바르지 않습니다."),
 
     // 회원
     DUPLICATE_USER_EMAIL("U-001", "중복된 이메일이 존재합니다."),

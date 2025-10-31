@@ -2,6 +2,8 @@ package com.app.groupdeal.application.user.facade;
 
 import com.app.groupdeal.application.user.service.UserService;
 import com.app.groupdeal.domain.user.User;
+import com.app.groupdeal.presentation.user.dto.LoginRequestDto;
+import com.app.groupdeal.presentation.user.dto.LoginResponseDto;
 import com.app.groupdeal.presentation.user.dto.SignUpRequestDto;
 import com.app.groupdeal.presentation.user.dto.SignUpResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -21,5 +23,13 @@ public class AuthFacadeService {
         User savedUser = userService.createUser(user);
 
         return SignUpResponseDto.of(savedUser);
+    }
+
+
+    public LoginResponseDto login(String email, String password) {
+
+        User loginUser = userService.login(email, password);
+
+        return LoginResponseDto.of(loginUser);
     }
 }

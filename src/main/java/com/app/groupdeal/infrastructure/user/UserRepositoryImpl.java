@@ -5,6 +5,8 @@ import com.app.groupdeal.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 @RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepository {
@@ -14,8 +16,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public User save(User user) {
 
-        UserEntity userEntity = user.toEntity();
-
+        UserEntity userEntity = UserEntity.from(user);
         UserEntity savedUserEntity = userEntityRepository.save(userEntity);
 
         return savedUserEntity.toDomain();
@@ -31,4 +32,9 @@ public class UserRepositoryImpl implements UserRepository {
         return userEntityRepository.existsByNickname(nickname);
     }
 
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return userEntityRepository.findByEmail(email)
+                .map(UserEntity::toDomain);
+    }
 }
