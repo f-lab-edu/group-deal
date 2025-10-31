@@ -1,6 +1,7 @@
 package com.app.groupdeal.domain.user;
 
 import com.app.groupdeal.domain.common.BaseDomain;
+import com.app.groupdeal.global.util.PasswordEncoder;
 import com.app.groupdeal.infrastructure.user.UserEntity;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,7 +27,8 @@ public class User extends BaseDomain {
         this.password = encryptPassword;
     }
 
-    public UserEntity toEntity() {
-        return UserEntity.from(this);
+    public boolean isPasswordMatch(String rawPassword, PasswordEncoder passwordEncoder) {
+        return passwordEncoder.matches(rawPassword, this.password);
     }
+
 }
