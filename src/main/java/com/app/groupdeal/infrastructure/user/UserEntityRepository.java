@@ -1,4 +1,10 @@
 package com.app.groupdeal.infrastructure.user;
 
-public interface UserEntityRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserEntityRepository extends JpaRepository<UserEntity, Long> {
+
+    boolean existsByEmail(String email);
+
+    boolean existsByNickname(String nickname);
 }
