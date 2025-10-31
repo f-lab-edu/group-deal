@@ -37,6 +37,9 @@ dependencies {
     implementation'org.mariadb.jdbc:mariadb-java-client:3.1.2'
     runtimeOnly 'com.mysql:mysql-connector-j'
 
+    // 암호화 라이브러리  BCrypt
+    implementation 'org.mindrot:jbcrypt:0.4'
+
 }
 
 tasks.named('test') {
