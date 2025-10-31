@@ -10,8 +10,9 @@ public enum ErrorType {
 
     // 회원
     DUPLICATE_USER_EMAIL("U-001", "중복된 이메일이 존재합니다."),
-    ALREADY_REGISTERED_USER("U-002", "이미 가입된 회원 입니다."),
-    USER_NOT_EXISTS("U-003", "해당 회원은 존재하지 않습니다."),
+    DUPLICATE_USER_NICKNAME("U-002", "중복된 닉네임이 존재합니다."),
+    ALREADY_REGISTERED_USER("U-003", "이미 가입된 회원 입니다."),
+    USER_NOT_EXISTS("U-004", "해당 회원은 존재하지 않습니다."),
 
     // 기타 에러
     SERVER_ERROR("E-001", "알수 없는 에러가 발생하였습니다. 잠시 후에 시도해주세요")

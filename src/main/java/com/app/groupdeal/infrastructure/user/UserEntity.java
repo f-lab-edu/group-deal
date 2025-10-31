@@ -24,6 +24,7 @@ public class UserEntity extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
+    @Column(unique = true)
     private String nickname;
 
     @Builder(access = AccessLevel.PRIVATE)
