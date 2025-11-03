@@ -8,10 +8,10 @@ spring:
     active: dev
 
   datasource:
-    url: jdbc:mariadb://localhost:3306/test?serverTimezone=Asia/Seoul
+    url: jdbc:mysql://localhost:3306/groupdeal?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: root
     password: ${PASSWORD}
-    driver-class-name: org.mariadb.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
@@ -32,6 +32,28 @@ logging:
   level:
     com.app.groupdeal: debug
 
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  datasource:
+    url: jdbc:h2:mem:test
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+logging:
+  level:
+    org.hibernate.type: trace
 ---
 spring:
   config:
