@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class UserRepositoryImpl implements UserRepository {
+public class JpaUserRepository implements UserRepository {
 
     private final UserEntityRepository userEntityRepository;
 
