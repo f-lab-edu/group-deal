@@ -13,12 +13,6 @@ spring:
     password: ${PASSWORD}
     driver-class-name: org.mariadb.jdbc.Driver
 
-#  datasource:
-#    url: jdbc:mysql://localhost:3306/groupdeal?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-#    username: root
-#    password: ${PASSWORD}
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -39,7 +33,6 @@ logging:
     com.app.groupdeal: debug
 
 ---
-###### ?? ?? ######
 spring:
   config:
     activate:
@@ -61,7 +54,6 @@ logging:
     org.hibernate.type: trace
 
 ---
-###### ?? ?? ######
 spring:
   config:
     activate:
@@ -72,7 +64,6 @@ logging:
     org.hibernate.type: trace
 
 ---
-###### ?? ?? ######
 spring:
   config:
     activate:
