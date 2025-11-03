@@ -12,4 +12,9 @@ public class BusinessException extends RuntimeException {
         super(errorType.getErrorMessage());
         this.errorType = errorType;
     }
+
+    public BusinessException(ErrorType errorType, Object... args) {
+        super(errorType.formatMessage(args));
+        this.errorType = errorType;
+    }
 }

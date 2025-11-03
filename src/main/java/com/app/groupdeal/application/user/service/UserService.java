@@ -45,14 +45,14 @@ public class UserService {
 
     private void validateDuplicatedEmail(String email) {
         if(userRepository.existsByEmail(email)){
-            throw new BusinessException(ErrorType.DUPLICATE_USER_EMAIL);
+            throw new BusinessException(ErrorType.DUPLICATION, "이메일");
         }
     }
 
 
     private void validateDuplicatedNickname(String nickname) {
         if(userRepository.existsByNickname(nickname)){
-            throw new BusinessException(ErrorType.DUPLICATE_USER_NICKNAME);
+            throw new BusinessException(ErrorType.DUPLICATION, "닉네임");
         }
     }
 
