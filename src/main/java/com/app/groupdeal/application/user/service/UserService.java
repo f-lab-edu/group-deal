@@ -20,13 +20,10 @@ public class UserService {
     @Transactional
     public User createUser(User user) {
 
-        // 이메일 중복 체크
         validateDuplicatedEmail(user.getEmail());
 
-        // 닉네임 중복 체크
         validateDuplicatedNickname(user.getNickname());
 
-        // 비밀번호 암호화
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.encryptPassword(encryptedPassword);
 
@@ -36,11 +33,9 @@ public class UserService {
 
     public User login(String email, String password) {
 
-        // 이메일 확인
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(ErrorType.INVALID_LOGIN_CREDENTIALS));
 
-        // 비밀번호 확인
         if(!user.isPasswordMatch(password, passwordEncoder)) {
             throw new BusinessException(ErrorType.INVALID_LOGIN_CREDENTIALS);
         }
