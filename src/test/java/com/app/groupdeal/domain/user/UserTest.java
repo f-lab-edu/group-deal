@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@DisplayName("User Domain 단위테스트")
 class UserTest {
 
     private final PasswordEncoder passwordEncoder = new PasswordEncoder();
@@ -50,5 +51,26 @@ class UserTest {
 
         //then
         assertThat(result).isTrue();
+    }
+
+    @Test
+    @DisplayName("비밀번호가 일치하지 않으면 false 반환")
+    void isPasswordMatch_Fail() {
+        //given
+
+        String rawPassword = "1234";
+        String encryptedPassword = passwordEncoder.encode(rawPassword);
+
+        User user = User.builder()
+                .email("test@test.com")
+                .nickname("테스트")
+                .password(encryptedPassword)
+                .build();
+
+        //when
+        boolean result = user.isPasswordMatch("wrongPassword", passwordEncoder);
+
+        //then
+        assertThat(result).isFalse();
     }
 }
