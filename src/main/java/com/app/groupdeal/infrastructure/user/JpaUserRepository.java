@@ -3,6 +3,7 @@ package com.app.groupdeal.infrastructure.user;
 import com.app.groupdeal.domain.user.User;
 import com.app.groupdeal.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -36,5 +37,16 @@ public class JpaUserRepository implements UserRepository {
     public Optional<User> findByEmail(String email) {
         return userEntityRepository.findByEmail(email)
                 .map(UserEntity::toDomain);
+    }
+
+    @Override
+    public void deleteAll(){
+        userEntityRepository.deleteAll();
+    }
+
+    interface UserEntityRepository extends JpaRepository<UserEntity, Long> {
+        boolean existsByEmail(String email);
+        boolean existsByNickname(String nickname);
+        Optional<UserEntity> findByEmail(String email);
     }
 }
