@@ -1,0 +1,62 @@
+package com.app.groupdeal.presentation.group.dto;
+
+import com.app.groupdeal.domain.group.Group;
+import com.app.groupdeal.domain.group.GroupStatus;
+import com.app.groupdeal.domain.user.User;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class CreateGroupResponseDto {
+
+    private Long groupId;
+    private String productName;
+    private String category;
+    private String description;
+    private Integer originalPrice;
+    private Integer pricePerPerson;
+    private Integer totalAmount;
+    private Integer differenceAmount;
+    private Integer targetParticipants;
+    private Integer currentParticipants;
+    private String dividedUnit;
+    private Integer recruitmentMinutes;
+    private GroupStatus status;
+    private LocalDateTime deadlineAt;
+    private String meetingLocation;
+    private LocalDateTime meetingAt;
+    private Long hostMemberId;
+    private String hostMemberName;
+    private LocalDateTime createdAt;
+
+    public static CreateGroupResponseDto of(Group group, User user) {
+        return CreateGroupResponseDto.builder()
+                .groupId(group.getGroupId())
+                .productName(group.getProductName())
+                .category(group.getCategory())
+                .description(group.getDescription())
+                .originalPrice(group.getOriginalPrice())
+                .pricePerPerson(group.calculatePricePerPersonRoundedUp())
+                .totalAmount(group.calculateTotalAmountByRoundedUp())
+                .differenceAmount(group.calculateDifferenceAmount())
+                .targetParticipants(group.getTargetParticipants())
+                .currentParticipants(group.getCurrentParticipants())
+                .dividedUnit(group.getDividedUnit())
+                .recruitmentMinutes(group.getRecruitmentMinutes())
+                .status(group.getStatus())
+                .deadlineAt(group.getDeadlineAt())
+                .meetingLocation(group.getMeetingLocation())
+                .meetingAt(group.getMeetingAt())
+                .hostMemberId(group.getHostMemberId())
+                .hostMemberName(user.getNickname())
+                .createdAt(group.getCreatedTime())
+                .build();
+    }
+}
