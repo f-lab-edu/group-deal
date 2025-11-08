@@ -16,6 +16,9 @@ public enum ErrorType {
     ALREADY_EXISTS("C-003", "이미 존재하는 %s입니다."),
     NOT_EXISTS("C-004", "존재하지 않는 %s입니다."),
 
+    //그룹
+    INVALID_MEETING_DATETIME("G-001", "거래 일시는 모집 마감 시간 이후여야 합니다."),
+
 
     // 기타 에러
     SERVER_ERROR("E-001", "알수 없는 에러가 발생하였습니다. 잠시 후에 시도해주세요")
