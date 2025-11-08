@@ -74,8 +74,16 @@ public class Group extends BaseDomain {
                 .build();
     }
 
-    public Integer calculatePricePerPerson() {
-        return originalPrice / targetParticipants;
+    public Integer calculatePricePerPersonRoundedUp() {
+        return (int) Math.ceil((double) originalPrice / targetParticipants);
+    }
+
+    public Integer calculateTotalAmountByRoundedUp() {
+        return calculatePricePerPersonRoundedUp() * targetParticipants;
+    }
+
+    public Integer calculateDifferenceAmount() {
+        return calculateTotalAmountByRoundedUp() - originalPrice;
     }
 
 
