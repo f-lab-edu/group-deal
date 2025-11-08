@@ -40,6 +40,13 @@ public class JpaUserRepository implements UserRepository {
     }
 
     @Override
+    public Optional<User> findById(Long id) {
+        return userEntityRepository.findById(id)
+                .map(UserEntity::toDomain);
+
+    }
+
+    @Override
     public void deleteAll(){
         userEntityRepository.deleteAll();
     }
