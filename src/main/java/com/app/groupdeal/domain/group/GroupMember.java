@@ -3,7 +3,6 @@ package com.app.groupdeal.domain.group;
 import com.app.groupdeal.domain.common.BaseDomain;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -17,15 +16,24 @@ public class GroupMember extends BaseDomain {
     private GroupMemberStatus groupMemberStatus;
     private LocalDateTime joinedAt;
 
+    private LocalDateTime createdTime;
+    private LocalDateTime updatedTime;
+    private String createdBy;
+    private String updatedBy;
+
     @Builder
-    public GroupMember(Long groupMemberId, Long groupId, Long userId, GroupMemberType groupMemberType,
-                       GroupMemberStatus groupMemberStatus, LocalDateTime joinedAt) {
+    public GroupMember(Long groupMemberId, Long groupId, Long userId, GroupMemberType groupMemberType, GroupMemberStatus groupMemberStatus,
+                       LocalDateTime joinedAt, LocalDateTime createdTime, LocalDateTime updatedTime, String createdBy, String updatedBy) {
         this.groupMemberId = groupMemberId;
         this.groupId = groupId;
         this.userId = userId;
         this.groupMemberType = groupMemberType;
         this.groupMemberStatus = groupMemberStatus;
         this.joinedAt = joinedAt;
+        this.createdTime = createdTime;
+        this.updatedTime = updatedTime;
+        this.createdBy = createdBy;
+        this.updatedBy = updatedBy;
     }
 
     public static GroupMember createHost(Long groupId, Long userId) {

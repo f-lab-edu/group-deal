@@ -6,6 +6,8 @@ import com.app.groupdeal.infrastructure.user.UserEntity;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 public class User extends BaseDomain {
 
@@ -14,13 +16,22 @@ public class User extends BaseDomain {
     private String password;
     private String nickname;
 
+    private LocalDateTime createdTime;
+    private LocalDateTime updatedTime;
+    private String createdBy;
+    private String updatedBy;
+
     @Builder
-    public User(Long userId, String email, String password, String nickname) {
+    public User(Long userId, String email, String password, String nickname,
+                LocalDateTime createdTime, LocalDateTime updatedTime, String createdBy, String updatedBy) {
         this.userId = userId;
         this.email = email;
         this.password = password;
         this.nickname = nickname;
-
+        this.createdTime = createdTime;
+        this.updatedTime = updatedTime;
+        this.createdBy = createdBy;
+        this.updatedBy = updatedBy;
     }
 
     public void encryptPassword(String encryptPassword) {

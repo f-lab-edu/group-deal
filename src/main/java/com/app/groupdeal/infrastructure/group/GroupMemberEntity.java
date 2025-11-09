@@ -67,6 +67,10 @@ public class GroupMemberEntity extends BaseEntity {
                 .groupMemberType(groupMemberType)
                 .groupMemberStatus(groupMemberStatus)
                 .joinedAt(joinedAt)
+                .createdTime(this.getCreatedTime())
+                .updatedTime(this.getUpdatedTime())
+                .createdBy(this.getCreatedBy())
+                .updatedBy(this.getUpdatedBy())
                 .build();
     }
 }
