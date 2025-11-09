@@ -3,6 +3,7 @@ package com.app.groupdeal.presentation.group.dto;
 import com.app.groupdeal.domain.group.Group;
 import com.app.groupdeal.domain.group.GroupStatus;
 import com.app.groupdeal.domain.user.User;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,11 +30,14 @@ public class CreateGroupResponseDto {
     private String dividedUnit;
     private Integer recruitmentMinutes;
     private GroupStatus status;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime deadlineAt;
     private String meetingLocation;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime meetingAt;
     private Long hostMemberId;
     private String hostMemberName;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
 
     public static CreateGroupResponseDto of(Group group, User user) {
