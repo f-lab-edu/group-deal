@@ -1,7 +1,8 @@
-package com.app.groupdeal.infrastructure.group;
+package com.app.groupdeal.infrastructure.group.repository;
 
-import com.app.groupdeal.domain.group.GroupMember;
-import com.app.groupdeal.domain.group.GroupMemberRepository;
+import com.app.groupdeal.domain.group.model.GroupMember;
+import com.app.groupdeal.domain.group.repository.GroupMemberRepository;
+import com.app.groupdeal.infrastructure.group.entity.GroupMemberEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

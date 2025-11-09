@@ -1,7 +1,7 @@
 package com.app.groupdeal.presentation.group.dto;
 
-import com.app.groupdeal.domain.group.Group;
-import com.app.groupdeal.domain.group.GroupStatus;
+import com.app.groupdeal.domain.group.model.Group;
+import com.app.groupdeal.domain.group.constants.GroupStatus;
 import com.app.groupdeal.domain.user.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;

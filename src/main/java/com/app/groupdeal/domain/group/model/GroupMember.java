@@ -1,6 +1,8 @@
-package com.app.groupdeal.domain.group;
+package com.app.groupdeal.domain.group.model;
 
 import com.app.groupdeal.domain.common.BaseDomain;
+import com.app.groupdeal.domain.group.constants.GroupMemberStatus;
+import com.app.groupdeal.domain.group.constants.GroupMemberType;
 import lombok.Builder;
 import lombok.Getter;
 

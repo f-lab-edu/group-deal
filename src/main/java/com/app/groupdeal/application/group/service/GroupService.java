@@ -1,10 +1,10 @@
 package com.app.groupdeal.application.group.service;
 
 
-import com.app.groupdeal.domain.group.Group;
-import com.app.groupdeal.domain.group.GroupMember;
-import com.app.groupdeal.domain.group.GroupMemberRepository;
-import com.app.groupdeal.domain.group.GroupRepository;
+import com.app.groupdeal.domain.group.model.Group;
+import com.app.groupdeal.domain.group.model.GroupMember;
+import com.app.groupdeal.domain.group.repository.GroupMemberRepository;
+import com.app.groupdeal.domain.group.repository.GroupRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

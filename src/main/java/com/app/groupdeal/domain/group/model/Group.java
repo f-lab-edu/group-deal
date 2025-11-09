@@ -1,6 +1,7 @@
-package com.app.groupdeal.domain.group;
+package com.app.groupdeal.domain.group.model;
 
 import com.app.groupdeal.domain.common.BaseDomain;
+import com.app.groupdeal.domain.group.constants.GroupStatus;
 import com.app.groupdeal.global.error.ErrorType;
 import com.app.groupdeal.global.error.exception.BusinessException;
 import lombok.Builder;

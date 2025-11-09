@@ -1,4 +1,4 @@
-package com.app.groupdeal.domain.group;
+package com.app.groupdeal.domain.group.constants;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

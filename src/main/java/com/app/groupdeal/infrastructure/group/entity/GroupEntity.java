@@ -1,7 +1,7 @@
-package com.app.groupdeal.infrastructure.group;
+package com.app.groupdeal.infrastructure.group.entity;
 
-import com.app.groupdeal.domain.group.Group;
-import com.app.groupdeal.domain.group.GroupStatus;
+import com.app.groupdeal.domain.group.model.Group;
+import com.app.groupdeal.domain.group.constants.GroupStatus;
 import com.app.groupdeal.infrastructure.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

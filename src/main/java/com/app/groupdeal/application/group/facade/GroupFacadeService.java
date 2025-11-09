@@ -2,7 +2,7 @@ package com.app.groupdeal.application.group.facade;
 
 import com.app.groupdeal.application.group.service.GroupService;
 import com.app.groupdeal.application.user.service.UserService;
-import com.app.groupdeal.domain.group.Group;
+import com.app.groupdeal.domain.group.model.Group;
 import com.app.groupdeal.presentation.group.dto.CreateGroupRequestDto;
 import com.app.groupdeal.presentation.group.dto.CreateGroupResponseDto;
 import lombok.RequiredArgsConstructor;

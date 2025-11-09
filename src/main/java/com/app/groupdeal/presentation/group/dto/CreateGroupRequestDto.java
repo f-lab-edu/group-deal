@@ -1,6 +1,6 @@
 package com.app.groupdeal.presentation.group.dto;
 
-import com.app.groupdeal.domain.group.Group;
+import com.app.groupdeal.domain.group.model.Group;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
