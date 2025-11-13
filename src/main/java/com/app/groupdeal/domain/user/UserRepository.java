@@ -12,4 +12,7 @@ public interface UserRepository {
 
     Optional<User> findByEmail(String email);
 
+    void deleteAll();
+
+    Optional<User> findById(Long id);
 }

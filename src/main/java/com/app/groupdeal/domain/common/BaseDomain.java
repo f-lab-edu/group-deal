@@ -6,6 +6,6 @@ import lombok.Getter;
 @Getter
 public class BaseDomain extends BaseTime {
 
-    private String createdBy;
-    private String updatedBy;
+    protected String createdBy;
+    protected String updatedBy;
 }

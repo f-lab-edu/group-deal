@@ -2,7 +2,7 @@ package com.app.groupdeal.presentation.user;
 
 import com.app.groupdeal.application.user.service.UserService;
 import com.app.groupdeal.domain.user.User;
-import com.app.groupdeal.infrastructure.user.UserEntityRepository;
+import com.app.groupdeal.domain.user.UserRepository;
 import com.app.groupdeal.presentation.user.dto.LoginRequestDto;
 import com.app.groupdeal.presentation.user.dto.SignUpRequestDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,12 +42,12 @@ class UserControllerTest {
     private UserService userService;
 
     @Autowired
-    private UserEntityRepository userEntityRepository;
+    private UserRepository userRepository;
 
     @BeforeEach
     void setUp() {
         RestAssured.port = port;
-        userEntityRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
 

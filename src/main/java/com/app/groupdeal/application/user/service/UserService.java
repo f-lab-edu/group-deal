@@ -43,6 +43,13 @@ public class UserService {
         return user;
     }
 
+
+    public User findById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorType.NOT_FOUND, "유저"));
+    }
+
+
     private void validateDuplicatedEmail(String email) {
         if(userRepository.existsByEmail(email)){
             throw new BusinessException(ErrorType.DUPLICATION, "이메일");
@@ -55,5 +62,6 @@ public class UserService {
             throw new BusinessException(ErrorType.DUPLICATION, "닉네임");
         }
     }
+
 
 }
