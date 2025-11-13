@@ -27,17 +27,12 @@ public class Group extends BaseDomain {
     private GroupStatus status;
     private Integer currentParticipants;
 
-    private LocalDateTime createdTime;
-    private LocalDateTime updatedTime;
-    private String createdBy;
-    private String updatedBy;
-
 
     @Builder
     public Group(Long groupId, String productName, String category, String description, String dividedUnit,
                  Integer originalPrice, Integer targetParticipants, Integer recruitmentMinutes, LocalDateTime deadlineAt,
                  String meetingLocation, LocalDateTime meetingAt, Long hostMemberId, GroupStatus status, Integer currentParticipants,
-                 LocalDateTime createdTime, LocalDateTime updatedTime, String createdBy, String updatedBy) {
+                 LocalDateTime createdTime) {
         this.groupId = groupId;
         this.productName = productName;
         this.category = category;
@@ -53,9 +48,6 @@ public class Group extends BaseDomain {
         this.status = status;
         this.currentParticipants = currentParticipants;
         this.createdTime = createdTime;
-        this.updatedTime = updatedTime;
-        this.createdBy = createdBy;
-        this.updatedBy = updatedBy;
     }
 
     public static Group create(String productName, String category, String description, String dividedUnit, Integer originalPrice,

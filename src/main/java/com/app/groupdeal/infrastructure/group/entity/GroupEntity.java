@@ -116,9 +116,6 @@ public class GroupEntity extends BaseEntity {
                 .status(status)
                 .currentParticipants(currentParticipants)
                 .createdTime(this.getCreatedTime())
-                .updatedTime(this.getUpdatedTime())
-                .createdBy(this.getCreatedBy())
-                .updatedBy(this.getUpdatedBy())
                 .build();
     }
 }
