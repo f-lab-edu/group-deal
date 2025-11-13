@@ -44,7 +44,7 @@ public class UserService {
     }
 
 
-    public User getUserById(Long userId) {
+    public User findById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorType.NOT_FOUND, "유저"));
     }

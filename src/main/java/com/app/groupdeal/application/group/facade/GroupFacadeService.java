@@ -19,7 +19,7 @@ public class GroupFacadeService {
 
     public CreateGroupResponseDto createGroup(Long userId, CreateGroupRequestDto request) {
 
-        User user = userService.getUserById(userId);
+        User user = userService.findById(userId);
 
         Group tempGroup = request.toDomain(userId);
 
