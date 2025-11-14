@@ -24,6 +24,7 @@ public class Group extends BaseDomain {
     private String meetingLocation;
     private LocalDateTime meetingAt;
     private Long hostMemberId;
+    private String hostMemberName;
     private GroupStatus status;
     private Integer currentParticipants;
 
@@ -31,7 +32,7 @@ public class Group extends BaseDomain {
     @Builder
     public Group(Long groupId, String productName, String category, String description, String dividedUnit,
                  Integer originalPrice, Integer targetParticipants, Integer recruitmentMinutes, LocalDateTime deadlineAt,
-                 String meetingLocation, LocalDateTime meetingAt, Long hostMemberId, GroupStatus status, Integer currentParticipants,
+                 String meetingLocation, LocalDateTime meetingAt, Long hostMemberId, String hostMemberName, GroupStatus status, Integer currentParticipants,
                  LocalDateTime createdTime) {
         this.groupId = groupId;
         this.productName = productName;
@@ -45,13 +46,15 @@ public class Group extends BaseDomain {
         this.meetingLocation = meetingLocation;
         this.meetingAt = meetingAt;
         this.hostMemberId = hostMemberId;
+        this.hostMemberName = hostMemberName;
         this.status = status;
         this.currentParticipants = currentParticipants;
         this.createdTime = createdTime;
     }
 
     public static Group create(String productName, String category, String description, String dividedUnit, Integer originalPrice,
-                               Integer targetParticipants, Integer recruitmentMinutes, String meetingLocation, LocalDateTime meetingAt, Long hostMemberId){
+                               Integer targetParticipants, Integer recruitmentMinutes, String meetingLocation, LocalDateTime meetingAt,
+                               Long hostMemberId, String hostMemberName){
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime deadlineAt = now.plusMinutes(recruitmentMinutes);
@@ -72,6 +75,7 @@ public class Group extends BaseDomain {
                 .meetingLocation(meetingLocation)
                 .meetingAt(meetingAt)
                 .hostMemberId(hostMemberId)
+                .hostMemberName(hostMemberName)
                 .status(GroupStatus.RECRUITING)
                 .currentParticipants(1)
                 .build();

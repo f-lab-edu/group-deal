@@ -40,7 +40,7 @@ public class CreateGroupResponseDto {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
 
-    public static CreateGroupResponseDto of(Group group, User user) {
+    public static CreateGroupResponseDto of(Group group) {
         return CreateGroupResponseDto.builder()
                 .groupId(group.getGroupId())
                 .productName(group.getProductName())
@@ -59,7 +59,7 @@ public class CreateGroupResponseDto {
                 .meetingLocation(group.getMeetingLocation())
                 .meetingAt(group.getMeetingAt())
                 .hostMemberId(group.getHostMemberId())
-                .hostMemberName(user.getNickname())
+                .hostMemberName(group.getHostMemberName())
                 .createdAt(group.getCreatedTime())
                 .build();
     }

@@ -42,7 +42,7 @@ public class SearchGroupResponseDto {
     private Integer progressRate;
     private Integer remainingMinutes;
 
-    public static SearchGroupResponseDto from(Group group, User user) {
+    public static SearchGroupResponseDto of(Group group) {
         return SearchGroupResponseDto.builder()
                 .groupId(group.getGroupId())
                 .productName(group.getProductName())
@@ -61,7 +61,7 @@ public class SearchGroupResponseDto {
                 .meetingLocation(group.getMeetingLocation())
                 .meetingAt(group.getMeetingAt())
                 .hostMemberId(group.getHostMemberId())
-                .hostMemberName(user.getNickname())
+                .hostMemberName(group.getHostMemberName())
                 .createdAt(LocalDateTime.now())
                 .build();
     }

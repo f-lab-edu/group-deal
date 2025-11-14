@@ -47,7 +47,7 @@ public class CreateGroupRequestDto {
     @Future(message = "거래 일시는 미래 시각이어야 합니다")
     private LocalDateTime meetingAt;
 
-    public Group toDomain(Long hostMemberId){
+    public Group toDomain(Long hostMemberId, String hostMemberName){
         return Group.create(
                 this.productName,
                 this.category,
@@ -58,7 +58,8 @@ public class CreateGroupRequestDto {
                 this.recruitmentMinutes,
                 this.meetingLocation,
                 this.meetingAt,
-                hostMemberId
+                hostMemberId,
+                hostMemberName
         );
     }
 
