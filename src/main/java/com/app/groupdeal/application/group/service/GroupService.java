@@ -6,6 +6,10 @@ import com.app.groupdeal.domain.group.model.GroupMember;
 import com.app.groupdeal.domain.group.repository.GroupMemberRepository;
 import com.app.groupdeal.domain.group.repository.GroupRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,5 +33,11 @@ public class GroupService {
 
 
 
+    }
+
+    public Page<Group> searchGroup(int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdTime").descending());
+        return groupRepository.findAll(pageable);
     }
 }

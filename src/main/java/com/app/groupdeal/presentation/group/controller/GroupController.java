@@ -4,8 +4,10 @@ import com.app.groupdeal.application.group.facade.GroupFacadeService;
 import com.app.groupdeal.global.session.LoginUser;
 import com.app.groupdeal.global.session.SessionUser;
 import com.app.groupdeal.presentation.common.dto.ApiResponse;
+import com.app.groupdeal.presentation.common.dto.PageResponse;
 import com.app.groupdeal.presentation.group.dto.CreateGroupRequestDto;
 import com.app.groupdeal.presentation.group.dto.CreateGroupResponseDto;
+import com.app.groupdeal.presentation.group.dto.SearchGroupResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,14 @@ public class GroupController {
             @LoginUser SessionUser sessionUser,
             @Valid @RequestBody CreateGroupRequestDto request) {
         CreateGroupResponseDto response = groupFacadeService.createGroup(sessionUser.getUserId(), request);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<PageResponse<SearchGroupResponseDto>>> searchGroup(
+            @RequestParam(value = "page") int page,
+            @RequestParam(value = "size") int size){
+        PageResponse<SearchGroupResponseDto> response = groupFacadeService.searchGroup(page, size);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

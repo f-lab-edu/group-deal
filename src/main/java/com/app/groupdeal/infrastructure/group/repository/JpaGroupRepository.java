@@ -4,6 +4,8 @@ import com.app.groupdeal.domain.group.model.Group;
 import com.app.groupdeal.domain.group.repository.GroupRepository;
 import com.app.groupdeal.infrastructure.group.entity.GroupEntity;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -22,6 +24,11 @@ public class JpaGroupRepository implements GroupRepository {
         return savedGroupEntity.toDomain();
 
 
+    }
+
+    @Override
+    public Page<Group> findAll(Pageable pageable) {
+        return null;
     }
 
     interface GroupEntityRepository extends JpaRepository<GroupEntity, Long> {
