@@ -28,7 +28,7 @@ public class JpaGroupRepository implements GroupRepository {
 
     @Override
     public Page<Group> findAll(Pageable pageable) {
-        return null;
+        return groupEntityRepository.findAll(pageable).map(GroupEntity::toDomain);
     }
 
     interface GroupEntityRepository extends JpaRepository<GroupEntity, Long> {
