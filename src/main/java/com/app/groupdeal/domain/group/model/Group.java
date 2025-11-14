@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Getter
 public class Group extends BaseDomain {
@@ -91,6 +92,24 @@ public class Group extends BaseDomain {
 
     public Integer calculateDifferenceAmount() {
         return calculateTotalAmountByRoundedUp() - originalPrice;
+    }
+
+    public Integer calculateProgressRate() {
+        double rate = ((double) currentParticipants / targetParticipants) * 100;
+        return (int) Math.round(rate);
+    }
+
+    public Integer calculateRemainingMinutes(){
+
+        LocalDateTime now = LocalDateTime.now();
+
+        if (now.isAfter(deadlineAt)) {
+            return 0;
+        }
+
+        long remainingMinutes = ChronoUnit.MINUTES.between(now, deadlineAt);
+
+        return (int) remainingMinutes;
     }
 
 

@@ -62,7 +62,9 @@ public class SearchGroupResponseDto {
                 .meetingAt(group.getMeetingAt())
                 .hostMemberId(group.getHostMemberId())
                 .hostMemberName(group.getHostMemberName())
-                .createdAt(LocalDateTime.now())
+                .createdAt(group.getCreatedTime())
+                .progressRate(group.calculateProgressRate())
+                .remainingMinutes(group.calculateRemainingMinutes())
                 .build();
     }
 
