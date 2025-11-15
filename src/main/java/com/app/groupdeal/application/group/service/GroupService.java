@@ -5,6 +5,8 @@ import com.app.groupdeal.domain.group.model.Group;
 import com.app.groupdeal.domain.group.model.GroupMember;
 import com.app.groupdeal.domain.group.repository.GroupMemberRepository;
 import com.app.groupdeal.domain.group.repository.GroupRepository;
+import com.app.groupdeal.global.error.ErrorType;
+import com.app.groupdeal.global.error.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,5 +41,10 @@ public class GroupService {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdTime").descending());
         return groupRepository.findAll(pageable);
+    }
+
+    public Group findById(Long groupId) {
+        return groupRepository.findById(groupId)
+                .orElseThrow(() -> new BusinessException(ErrorType.NOT_FOUND, "그룹"));
     }
 }

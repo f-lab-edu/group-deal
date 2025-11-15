@@ -7,6 +7,7 @@ import com.app.groupdeal.presentation.common.dto.ApiResponse;
 import com.app.groupdeal.presentation.common.dto.PageResponse;
 import com.app.groupdeal.presentation.group.dto.CreateGroupRequestDto;
 import com.app.groupdeal.presentation.group.dto.CreateGroupResponseDto;
+import com.app.groupdeal.presentation.group.dto.DetailGroupResponseDto;
 import com.app.groupdeal.presentation.group.dto.SearchGroupResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,13 @@ public class GroupController {
         PageResponse<SearchGroupResponseDto> response = groupFacadeService.searchGroup(page, size);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
+
+    @GetMapping("/{groupId}")
+    public ResponseEntity<ApiResponse<DetailGroupResponseDto>> getDetailGroup(@PathVariable Long groupId){
+        DetailGroupResponseDto response = groupFacadeService.getDetailGroup(groupId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
 
 
 

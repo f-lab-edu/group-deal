@@ -1,16 +1,21 @@
 package com.app.groupdeal.application.group.facade;
 
+import com.app.groupdeal.application.group.service.GroupMemberService;
 import com.app.groupdeal.application.group.service.GroupService;
 import com.app.groupdeal.application.user.service.UserService;
 import com.app.groupdeal.domain.group.model.Group;
+import com.app.groupdeal.domain.group.model.GroupMember;
 import com.app.groupdeal.presentation.common.dto.PageResponse;
 import com.app.groupdeal.presentation.group.dto.CreateGroupRequestDto;
 import com.app.groupdeal.presentation.group.dto.CreateGroupResponseDto;
+import com.app.groupdeal.presentation.group.dto.DetailGroupResponseDto;
 import com.app.groupdeal.presentation.group.dto.SearchGroupResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import com.app.groupdeal.domain.user.User;
+
+import java.util.List;
 
 
 @Service
@@ -19,6 +24,7 @@ public class GroupFacadeService {
 
     private final UserService userService;
     private final GroupService groupService;
+    private final GroupMemberService groupMemberService;
 
     public CreateGroupResponseDto createGroup(Long userId, CreateGroupRequestDto request) {
 
@@ -40,5 +46,16 @@ public class GroupFacadeService {
         Page<SearchGroupResponseDto> responsePage = groupPage.map(SearchGroupResponseDto::of);
 
         return PageResponse.of(responsePage);
+    }
+
+    public DetailGroupResponseDto getDetailGroup(Long groupId) {
+
+        Group group = groupService.findById(groupId);
+
+        List<GroupMember> groupMembers = groupMemberService.findByGroupId(groupId);
+
+        return DetailGroupResponseDto.of(group, groupMembers);
+
+
     }
 }
