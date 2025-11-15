@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 @RequiredArgsConstructor
 public class JpaGroupRepository implements GroupRepository {
@@ -29,6 +31,11 @@ public class JpaGroupRepository implements GroupRepository {
     @Override
     public Page<Group> findAll(Pageable pageable) {
         return groupEntityRepository.findAll(pageable).map(GroupEntity::toDomain);
+    }
+
+    @Override
+    public Optional<Group> findById(Long groupId) {
+        return groupEntityRepository.findById(groupId).map(GroupEntity::toDomain);
     }
 
     interface GroupEntityRepository extends JpaRepository<GroupEntity, Long> {
