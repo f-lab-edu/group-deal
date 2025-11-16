@@ -28,7 +28,7 @@ public class GroupService {
 
         Group savedGroup = groupRepository.save(group);
 
-        GroupMember hostMember = GroupMember.createHost(savedGroup.getGroupId(), savedGroup.getHostMemberId());
+        GroupMember hostMember = GroupMember.createHost(savedGroup);
         groupMemberRepository.save(hostMember);
 
         return savedGroup;

@@ -14,25 +14,28 @@ public class GroupMember extends BaseDomain {
     private Long groupMemberId;
     private Long groupId;
     private Long userId;
+    private String nickname;
     private GroupMemberType groupMemberType;
     private GroupMemberStatus groupMemberStatus;
     private LocalDateTime joinedAt;
 
     @Builder
-    public GroupMember(Long groupMemberId, Long groupId, Long userId, GroupMemberType groupMemberType,
+    public GroupMember(Long groupMemberId, Long groupId, Long userId, String nickname, GroupMemberType groupMemberType,
                        GroupMemberStatus groupMemberStatus, LocalDateTime joinedAt) {
         this.groupMemberId = groupMemberId;
         this.groupId = groupId;
         this.userId = userId;
+        this.nickname = nickname;
         this.groupMemberType = groupMemberType;
         this.groupMemberStatus = groupMemberStatus;
         this.joinedAt = joinedAt;
     }
 
-    public static GroupMember createHost(Long groupId, Long userId) {
+    public static GroupMember createHost(Group group) {
         return GroupMember.builder()
-                .groupId(groupId)
-                .userId(userId)
+                .groupId(group.getGroupId())
+                .userId(group.getHostMemberId())
+                .nickname(group.getHostMemberName())
                 .groupMemberType(GroupMemberType.HOST)
                 .groupMemberStatus(GroupMemberStatus.JOINED)
                 .joinedAt(LocalDateTime.now())
