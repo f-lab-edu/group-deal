@@ -33,6 +33,11 @@ public class JpaGroupMemberRepository implements GroupMemberRepository {
                 .toList();
     }
 
+    @Override
+    public void deleteAll(){
+        groupMemberEntityRepository.deleteAll();
+    }
+
     interface GroupMemberEntityRepository extends JpaRepository<GroupMemberEntity, Long> {
 
         List<GroupMemberEntity> findByGroupId(Long groupId);

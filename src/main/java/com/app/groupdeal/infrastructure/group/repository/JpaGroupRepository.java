@@ -38,6 +38,11 @@ public class JpaGroupRepository implements GroupRepository {
         return groupEntityRepository.findById(groupId).map(GroupEntity::toDomain);
     }
 
+    @Override
+    public void deleteAll(){
+        groupEntityRepository.deleteAll();
+    }
+
     interface GroupEntityRepository extends JpaRepository<GroupEntity, Long> {
 
     }

@@ -9,4 +9,6 @@ public interface GroupMemberRepository {
     GroupMember save(GroupMember groupMember);
 
     List<GroupMember> findByGroupId(Long groupId);
+
+    void deleteAll();
 }

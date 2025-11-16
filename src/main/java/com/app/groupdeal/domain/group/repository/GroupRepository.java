@@ -12,4 +12,6 @@ public interface GroupRepository {
     Page<Group> findAll(Pageable pageable);
 
     Optional<Group> findById(Long groupId);
+
+    void deleteAll();
 }
