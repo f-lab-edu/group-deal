@@ -49,6 +49,13 @@ public class GroupController {
 
     }
 
+    @PostMapping("/{groupId}/leave")
+    public ResponseEntity<ApiResponse<LeaveGroupResponseDto>> leaveGroup(
+            @PathVariable Long groupId,
+            @LoginUser SessionUser sessionUser){
+        LeaveGroupResponseDto response = groupFacadeService.leaveGroup(groupId, sessionUser.getUserId());
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
 
 
 }
