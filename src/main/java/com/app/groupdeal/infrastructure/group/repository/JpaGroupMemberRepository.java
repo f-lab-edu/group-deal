@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -43,12 +44,20 @@ public class JpaGroupMemberRepository implements GroupMemberRepository {
         return groupMemberEntityRepository.existsByGroupIdAndUserId(groupId, userId);
     }
 
+    @Override
+    public Optional<GroupMember> findByGroupIdAndUserId(Long groupId, Long userId) {
+        return groupMemberEntityRepository.findByGroupIdAndUserId(groupId, userId)
+                .map(GroupMemberEntity::toDomain);
+    }
+
 
     interface GroupMemberEntityRepository extends JpaRepository<GroupMemberEntity, Long> {
 
         List<GroupMemberEntity> findByGroupId(Long groupId);
 
         boolean existsByGroupIdAndUserId(Long groupId, Long userId);
+
+        Optional<GroupMemberEntity> findByGroupIdAndUserId(Long groupId, Long userId);
     }
 
 }
