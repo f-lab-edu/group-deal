@@ -14,7 +14,7 @@ public interface GroupMemberRepository {
 
     void deleteAll();
 
-    boolean existsByGroupIdAndUserId(Long groupId, Long userId);
+    boolean existsByGroupIdAndUserIdAndStatus(Long groupId, Long userId, GroupMemberStatus groupMemberStatus);
 
     Optional<GroupMember> findByGroupIdAndUserId(Long groupId, Long userId);
 

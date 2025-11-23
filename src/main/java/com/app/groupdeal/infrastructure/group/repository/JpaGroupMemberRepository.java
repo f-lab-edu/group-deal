@@ -41,8 +41,8 @@ public class JpaGroupMemberRepository implements GroupMemberRepository {
     }
 
     @Override
-    public boolean existsByGroupIdAndUserId(Long groupId, Long userId) {
-        return groupMemberEntityRepository.existsByGroupIdAndUserId(groupId, userId);
+    public boolean existsByGroupIdAndUserIdAndStatus(Long groupId, Long userId, GroupMemberStatus status) {
+        return groupMemberEntityRepository.existsByGroupIdAndUserIdAndGroupMemberStatus(groupId, userId, status);
     }
 
     @Override
@@ -56,7 +56,7 @@ public class JpaGroupMemberRepository implements GroupMemberRepository {
 
         List<GroupMemberEntity> findByGroupIdAndGroupMemberStatus(Long groupId, GroupMemberStatus status);
 
-        boolean existsByGroupIdAndUserId(Long groupId, Long userId);
+        boolean existsByGroupIdAndUserIdAndGroupMemberStatus(Long groupId, Long userId, GroupMemberStatus status);
 
         Optional<GroupMemberEntity> findByGroupIdAndUserId(Long groupId, Long userId);
     }

@@ -23,7 +23,7 @@ public class GroupMemberService {
     }
 
     public boolean isAlreadyJoined(Long groupId, Long userId) {
-        return groupMemberRepository.existsByGroupIdAndUserId(groupId, userId);
+        return groupMemberRepository.existsByGroupIdAndUserIdAndStatus(groupId, userId, GroupMemberStatus.JOINED);
     }
 
     @Transactional
