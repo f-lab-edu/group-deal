@@ -54,9 +54,9 @@ public class GroupFacadeService {
 
         Group group = groupService.findById(groupId);
 
-        List<GroupMember> groupMembers = groupMemberService.findByGroupId(groupId);
+        List<GroupMember> joinedMembers = groupMemberService.findJoinedMembers(groupId);
 
-        return DetailGroupResponseDto.of(group, groupMembers);
+        return DetailGroupResponseDto.of(group, joinedMembers);
 
 
     }

@@ -1,5 +1,6 @@
 package com.app.groupdeal.application.group.service;
 
+import com.app.groupdeal.domain.group.constants.GroupMemberStatus;
 import com.app.groupdeal.domain.group.model.GroupMember;
 import com.app.groupdeal.domain.group.repository.GroupMemberRepository;
 import com.app.groupdeal.global.error.ErrorType;
@@ -17,8 +18,8 @@ public class GroupMemberService {
 
     private final GroupMemberRepository groupMemberRepository;
 
-    public List<GroupMember> findByGroupId(Long groupId) {
-        return groupMemberRepository.findByGroupId(groupId);
+    public List<GroupMember> findJoinedMembers(Long groupId) {
+        return groupMemberRepository.findByGroupIdAndStatus(groupId, GroupMemberStatus.JOINED);
     }
 
     public boolean isAlreadyJoined(Long groupId, Long userId) {
@@ -42,6 +43,5 @@ public class GroupMemberService {
         groupMember.leaveGroup();
         return groupMemberRepository.save(groupMember);
     }
-
 
 }

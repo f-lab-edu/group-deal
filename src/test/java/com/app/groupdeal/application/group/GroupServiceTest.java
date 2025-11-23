@@ -113,7 +113,7 @@ class GroupServiceTest {
         Group savedGroup = groupService.createGroup(group);
 
         // GroupMemberService를 통해 참여자 확인
-        List<GroupMember> members = groupMemberService.findByGroupId(savedGroup.getGroupId());
+        List<GroupMember> members = groupMemberService.findJoinedMembers(savedGroup.getGroupId());
 
         // then
         assertThat(members).hasSize(1);

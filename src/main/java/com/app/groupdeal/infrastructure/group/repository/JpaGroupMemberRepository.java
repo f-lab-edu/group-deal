@@ -1,5 +1,6 @@
 package com.app.groupdeal.infrastructure.group.repository;
 
+import com.app.groupdeal.domain.group.constants.GroupMemberStatus;
 import com.app.groupdeal.domain.group.model.GroupMember;
 import com.app.groupdeal.domain.group.repository.GroupMemberRepository;
 import com.app.groupdeal.infrastructure.group.entity.GroupMemberEntity;
@@ -28,8 +29,8 @@ public class JpaGroupMemberRepository implements GroupMemberRepository {
     }
 
     @Override
-    public List<GroupMember> findByGroupId(Long groupId) {
-        return groupMemberEntityRepository.findByGroupId(groupId).stream()
+    public List<GroupMember> findByGroupIdAndStatus(Long groupId, GroupMemberStatus status) {
+        return groupMemberEntityRepository.findByGroupIdAndGroupMemberStatus(groupId, status).stream()
                 .map(GroupMemberEntity::toDomain)
                 .toList();
     }
@@ -53,7 +54,7 @@ public class JpaGroupMemberRepository implements GroupMemberRepository {
 
     interface GroupMemberEntityRepository extends JpaRepository<GroupMemberEntity, Long> {
 
-        List<GroupMemberEntity> findByGroupId(Long groupId);
+        List<GroupMemberEntity> findByGroupIdAndGroupMemberStatus(Long groupId, GroupMemberStatus status);
 
         boolean existsByGroupIdAndUserId(Long groupId, Long userId);
 
