@@ -3,6 +3,7 @@ package com.app.groupdeal.presentation.group.dto;
 import com.app.groupdeal.domain.group.model.Group;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class CreateGroupRequestDto {
 
     @NotBlank(message = "상품명은 필수입니다")
@@ -47,7 +49,7 @@ public class CreateGroupRequestDto {
     @Future(message = "거래 일시는 미래 시각이어야 합니다")
     private LocalDateTime meetingAt;
 
-    public Group toDomain(Long hostMemberId){
+    public Group toDomain(Long hostMemberId, String hostMemberName){
         return Group.create(
                 this.productName,
                 this.category,
@@ -58,7 +60,8 @@ public class CreateGroupRequestDto {
                 this.recruitmentMinutes,
                 this.meetingLocation,
                 this.meetingAt,
-                hostMemberId
+                hostMemberId,
+                hostMemberName
         );
     }
 

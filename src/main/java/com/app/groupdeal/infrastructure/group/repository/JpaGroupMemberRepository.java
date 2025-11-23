@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 @RequiredArgsConstructor
 public class JpaGroupMemberRepository implements GroupMemberRepository {
@@ -24,7 +26,21 @@ public class JpaGroupMemberRepository implements GroupMemberRepository {
 
     }
 
+    @Override
+    public List<GroupMember> findByGroupId(Long groupId) {
+        return groupMemberEntityRepository.findByGroupId(groupId).stream()
+                .map(GroupMemberEntity::toDomain)
+                .toList();
+    }
+
+    @Override
+    public void deleteAll(){
+        groupMemberEntityRepository.deleteAll();
+    }
+
     interface GroupMemberEntityRepository extends JpaRepository<GroupMemberEntity, Long> {
+
+        List<GroupMemberEntity> findByGroupId(Long groupId);
 
     }
 

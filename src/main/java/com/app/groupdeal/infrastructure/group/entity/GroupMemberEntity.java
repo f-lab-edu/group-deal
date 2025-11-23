@@ -28,6 +28,9 @@ public class GroupMemberEntity extends BaseEntity {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @Column(name = "nickname")
+    private String nickname;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private GroupMemberType groupMemberType;
@@ -40,10 +43,11 @@ public class GroupMemberEntity extends BaseEntity {
     private LocalDateTime joinedAt;
 
     @Builder(access = AccessLevel.PRIVATE)
-    public GroupMemberEntity(Long groupId, Long userId, GroupMemberType groupMemberType,
+    public GroupMemberEntity(Long groupId, Long userId, String nickname, GroupMemberType groupMemberType,
                              GroupMemberStatus groupMemberStatus, LocalDateTime joinedAt) {
         this.groupId = groupId;
         this.userId = userId;
+        this.nickname = nickname;
         this.groupMemberType = groupMemberType;
         this.groupMemberStatus = groupMemberStatus;
         this.joinedAt = joinedAt;
@@ -53,6 +57,7 @@ public class GroupMemberEntity extends BaseEntity {
         return GroupMemberEntity.builder()
                 .groupId(groupMember.getGroupId())
                 .userId(groupMember.getUserId())
+                .nickname(groupMember.getNickname())
                 .groupMemberType(groupMember.getGroupMemberType())
                 .groupMemberStatus(groupMember.getGroupMemberStatus())
                 .joinedAt(groupMember.getJoinedAt())
@@ -64,6 +69,7 @@ public class GroupMemberEntity extends BaseEntity {
                 .groupMemberId(groupMemberId)
                 .groupId(groupId)
                 .userId(userId)
+                .nickname(nickname)
                 .groupMemberType(groupMemberType)
                 .groupMemberStatus(groupMemberStatus)
                 .joinedAt(joinedAt)

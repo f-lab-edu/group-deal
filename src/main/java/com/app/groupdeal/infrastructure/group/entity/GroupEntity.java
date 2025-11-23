@@ -54,6 +54,9 @@ public class GroupEntity extends BaseEntity {
     @Column(nullable = false)
     private Long hostMemberId;
 
+    @Column(nullable = false)
+    private String hostMemberName;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private GroupStatus status;
@@ -64,7 +67,8 @@ public class GroupEntity extends BaseEntity {
     @Builder(access = AccessLevel.PRIVATE)
     public GroupEntity(Long groupId, String productName, String category, String description, Integer originalPrice,
                        Integer targetParticipants, String dividedUnit, Integer recruitmentMinutes, LocalDateTime deadlineAt,
-                       String meetingLocation, LocalDateTime meetingAt, Long hostMemberId, GroupStatus status, Integer currentParticipants) {
+                       String meetingLocation, LocalDateTime meetingAt, Long hostMemberId, String hostMemberName,
+                       GroupStatus status, Integer currentParticipants) {
         this.groupId = groupId;
         this.productName = productName;
         this.category = category;
@@ -77,6 +81,7 @@ public class GroupEntity extends BaseEntity {
         this.meetingLocation = meetingLocation;
         this.meetingAt = meetingAt;
         this.hostMemberId = hostMemberId;
+        this.hostMemberName = hostMemberName;
         this.status = status;
         this.currentParticipants = currentParticipants;
     }
@@ -94,6 +99,7 @@ public class GroupEntity extends BaseEntity {
                 .meetingLocation(group.getMeetingLocation())
                 .meetingAt(group.getMeetingAt())
                 .hostMemberId(group.getHostMemberId())
+                .hostMemberName(group.getHostMemberName())
                 .status(group.getStatus())
                 .currentParticipants(group.getCurrentParticipants())
                 .build();
@@ -113,6 +119,7 @@ public class GroupEntity extends BaseEntity {
                 .meetingLocation(meetingLocation)
                 .meetingAt(meetingAt)
                 .hostMemberId(hostMemberId)
+                .hostMemberName(hostMemberName)
                 .status(status)
                 .currentParticipants(currentParticipants)
                 .createdTime(this.getCreatedTime())

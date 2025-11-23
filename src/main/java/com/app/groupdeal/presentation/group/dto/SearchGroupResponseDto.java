@@ -1,7 +1,7 @@
 package com.app.groupdeal.presentation.group.dto;
 
-import com.app.groupdeal.domain.group.model.Group;
 import com.app.groupdeal.domain.group.constants.GroupStatus;
+import com.app.groupdeal.domain.group.model.Group;
 import com.app.groupdeal.domain.user.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CreateGroupResponseDto {
+public class SearchGroupResponseDto {
 
     private Long groupId;
     private String productName;
@@ -39,9 +39,11 @@ public class CreateGroupResponseDto {
     private String hostMemberName;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
+    private Integer progressRate;
+    private Integer remainingMinutes;
 
-    public static CreateGroupResponseDto of(Group group) {
-        return CreateGroupResponseDto.builder()
+    public static SearchGroupResponseDto of(Group group) {
+        return SearchGroupResponseDto.builder()
                 .groupId(group.getGroupId())
                 .productName(group.getProductName())
                 .category(group.getCategory())
@@ -61,6 +63,10 @@ public class CreateGroupResponseDto {
                 .hostMemberId(group.getHostMemberId())
                 .hostMemberName(group.getHostMemberName())
                 .createdAt(group.getCreatedTime())
+                .progressRate(group.calculateProgressRate())
+                .remainingMinutes(group.calculateRemainingMinutes())
                 .build();
     }
+
+
 }

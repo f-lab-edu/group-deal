@@ -1,8 +1,9 @@
 package com.app.groupdeal.presentation.group.dto;
 
-import com.app.groupdeal.domain.group.model.Group;
+import com.app.groupdeal.domain.group.constants.GroupMemberType;
 import com.app.groupdeal.domain.group.constants.GroupStatus;
-import com.app.groupdeal.domain.user.User;
+import com.app.groupdeal.domain.group.model.Group;
+import com.app.groupdeal.domain.group.model.GroupMember;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,12 +11,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class CreateGroupResponseDto {
+public class DetailGroupResponseDto {
 
     private Long groupId;
     private String productName;
@@ -35,13 +37,39 @@ public class CreateGroupResponseDto {
     private String meetingLocation;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime meetingAt;
-    private Long hostMemberId;
-    private String hostMemberName;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
+    private Integer progressRate;
+    private Integer remainingMinutes;
 
-    public static CreateGroupResponseDto of(Group group) {
-        return CreateGroupResponseDto.builder()
+    private HostInfo host;
+    private List<MemberInfo> members;
+
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class HostInfo {
+        private Long userId;
+        private String nickname;
+    }
+
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class MemberInfo {
+        private Long userId;
+        private String nickname;
+        private GroupMemberType memberType;
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+        private LocalDateTime joinedAt;
+    }
+
+    public static DetailGroupResponseDto of(Group group, List<GroupMember> groupMembers) {
+        return DetailGroupResponseDto.builder()
                 .groupId(group.getGroupId())
                 .productName(group.getProductName())
                 .category(group.getCategory())
@@ -58,9 +86,22 @@ public class CreateGroupResponseDto {
                 .deadlineAt(group.getDeadlineAt())
                 .meetingLocation(group.getMeetingLocation())
                 .meetingAt(group.getMeetingAt())
-                .hostMemberId(group.getHostMemberId())
-                .hostMemberName(group.getHostMemberName())
                 .createdAt(group.getCreatedTime())
+                .progressRate(group.calculateProgressRate())
+                .remainingMinutes(group.calculateRemainingMinutes())
+                .host(HostInfo.builder()
+                        .userId(group.getHostMemberId())
+                        .nickname(group.getHostMemberName())
+                        .build())
+                .members(groupMembers.stream()
+                        .map(member -> MemberInfo.builder()
+                                .userId(member.getUserId())
+                                .nickname(member.getNickname())
+                                .memberType(member.getGroupMemberType())
+                                .joinedAt(member.getJoinedAt())
+                                .build())
+                        .toList())
                 .build();
     }
+
 }
