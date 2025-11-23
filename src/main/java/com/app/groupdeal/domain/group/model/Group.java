@@ -127,11 +127,24 @@ public class Group extends BaseDomain {
         }
     }
 
+    public void validateLeavable() {
+        if (this.status != GroupStatus.RECRUITING) {
+            throw new BusinessException(ErrorType.CANNOT_LEAVE_CLOSED_GROUP);
+        }
+    }
+
     public void increaseParticipant() {
         if (this.currentParticipants >= this.targetParticipants) {
             throw new BusinessException(ErrorType.GROUP_FULL);
         }
         this.currentParticipants++;
+    }
+
+    public void decreaseParticipant() {
+        if (this.currentParticipants <= 1) {
+            throw new BusinessException(ErrorType.CANNOT_DECREASE_PARTICIPANT);
+        }
+        this.currentParticipants--;
     }
 
 

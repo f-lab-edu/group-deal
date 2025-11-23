@@ -58,6 +58,14 @@ public class GroupMember extends BaseDomain {
                 .leftAt(null)
                 .build();
     }
+
+    public boolean isHost(){
+        return this.groupMemberType == GroupMemberType.HOST;
+    }
+
+    public boolean isLeft(){
+        return this.groupMemberStatus == GroupMemberStatus.LEFT;
+    }
 }
 
 
