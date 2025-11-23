@@ -5,10 +5,7 @@ import com.app.groupdeal.global.session.LoginUser;
 import com.app.groupdeal.global.session.SessionUser;
 import com.app.groupdeal.presentation.common.dto.ApiResponse;
 import com.app.groupdeal.presentation.common.dto.PageResponse;
-import com.app.groupdeal.presentation.group.dto.CreateGroupRequestDto;
-import com.app.groupdeal.presentation.group.dto.CreateGroupResponseDto;
-import com.app.groupdeal.presentation.group.dto.DetailGroupResponseDto;
-import com.app.groupdeal.presentation.group.dto.SearchGroupResponseDto;
+import com.app.groupdeal.presentation.group.dto.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +40,14 @@ public class GroupController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
+    @PostMapping("/{groupId}/join}")
+    public ResponseEntity<ApiResponse<JoinGroupResponseDto>> joinGroup(
+            @PathVariable Long groupId,
+            @LoginUser SessionUser sessionUser){
+        JoinGroupResponseDto response = groupFacadeService.joinGroup(groupId, sessionUser.getUserId(), sessionUser.getNickname());
+        return ResponseEntity.ok(ApiResponse.success(response));
+
+    }
 
 
 

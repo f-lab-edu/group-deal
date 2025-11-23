@@ -18,4 +18,14 @@ public class GroupMemberService {
     public List<GroupMember> findByGroupId(Long groupId) {
         return groupMemberRepository.findByGroupId(groupId);
     }
+
+    public boolean isAlreadyJoined(Long groupId, Long userId) {
+        return groupMemberRepository.existsByGroupIdAndUserId(groupId, userId);
+    }
+
+    @Transactional
+    public GroupMember joinGroup(Long groupId, Long userId, String nickname) {
+        GroupMember member = GroupMember.createMember(groupId, userId, nickname);
+        return groupMemberRepository.save(member);
+    }
 }
