@@ -113,4 +113,26 @@ public class Group extends BaseDomain {
     }
 
 
+    public void validateJoinable() {
+        if (this.status != GroupStatus.RECRUITING) {
+            throw new BusinessException(ErrorType.GROUP_NOT_RECRUITING);
+        }
+
+        if (this.currentParticipants >= this.targetParticipants) {
+            throw new BusinessException(ErrorType.GROUP_FULL);
+        }
+
+        if (this.deadlineAt.isBefore(LocalDateTime.now())) {
+            throw new BusinessException(ErrorType.GROUP_DEADLINE_PASSED);
+        }
+    }
+
+    public void increaseParticipant() {
+        if (this.currentParticipants >= this.targetParticipants) {
+            throw new BusinessException(ErrorType.GROUP_FULL);
+        }
+        this.currentParticipants++;
+    }
+
+
 }

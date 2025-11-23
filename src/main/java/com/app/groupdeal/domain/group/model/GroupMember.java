@@ -43,6 +43,16 @@ public class GroupMember extends BaseDomain {
     }
 
 
+    public static GroupMember createMember(Long groupId, Long userId, String nickname) {
+        return GroupMember.builder()
+                .groupId(groupId)
+                .userId(userId)
+                .nickname(nickname)
+                .groupMemberType(GroupMemberType.MEMBER)
+                .groupMemberStatus(GroupMemberStatus.JOINED)
+                .joinedAt(LocalDateTime.now())
+                .build();
+    }
 }
 
 
