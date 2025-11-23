@@ -20,12 +20,14 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class GroupFacadeService {
 
     private final UserService userService;
     private final GroupService groupService;
     private final GroupMemberService groupMemberService;
 
+    @Transactional
     public CreateGroupResponseDto createGroup(Long userId, CreateGroupRequestDto request) {
 
         User user = userService.findById(userId);
@@ -76,8 +78,10 @@ public class GroupFacadeService {
 
         GroupMember updatedGroupMember = groupMemberService.joinGroup(groupId, userId, nickname);
 
-        group.increaseParticipant();
+        groupService.increaseParticipant(groupId);
 
-        return JoinGroupResponseDto.of(group, updatedGroupMember);
+        Group updatedGroup = groupService.findById(groupId);
+
+        return JoinGroupResponseDto.of(updatedGroup, updatedGroupMember);
     }
 }
