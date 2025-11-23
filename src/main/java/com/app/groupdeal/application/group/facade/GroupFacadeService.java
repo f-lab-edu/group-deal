@@ -76,10 +76,8 @@ public class GroupFacadeService {
 
         GroupMember updatedGroupMember = groupMemberService.joinGroup(groupId, userId, nickname);
 
-        groupService.increaseParticipant(groupId);
+        group.increaseParticipant();
 
-        Group updatedGroup = groupService.findById(groupId);
-
-        return JoinGroupResponseDto.of(updatedGroup, updatedGroupMember);
+        return JoinGroupResponseDto.of(group, updatedGroupMember);
     }
 }
