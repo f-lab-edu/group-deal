@@ -3,6 +3,8 @@ package com.app.groupdeal.domain.group.model;
 import com.app.groupdeal.domain.common.BaseDomain;
 import com.app.groupdeal.domain.group.constants.GroupMemberStatus;
 import com.app.groupdeal.domain.group.constants.GroupMemberType;
+import com.app.groupdeal.global.error.ErrorType;
+import com.app.groupdeal.global.error.exception.BusinessException;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -65,6 +67,17 @@ public class GroupMember extends BaseDomain {
 
     public boolean isLeft(){
         return this.groupMemberStatus == GroupMemberStatus.LEFT;
+    }
+
+    public void leaveGroup() {
+        if(this.groupMemberType == GroupMemberType.HOST){
+            throw new BusinessException(ErrorType.HOST_CANNOT_LEAVE);
+        }
+        if(this.groupMemberStatus == GroupMemberStatus.LEFT){
+            throw new BusinessException(ErrorType.ALREADY_LEFT);
+        }
+        this.groupMemberStatus = GroupMemberStatus.LEFT;
+        this.leftAt = LocalDateTime.now();
     }
 }
 

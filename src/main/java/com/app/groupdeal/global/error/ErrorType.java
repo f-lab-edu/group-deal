@@ -26,6 +26,9 @@ public enum ErrorType {
     ALREADY_JOINED("G-007", "이미 참여한 그룹입니다."),
     CANNOT_DECREASE_PARTICIPANT("G-008", "참여자는 최소 1명 이상입니다."),
     CANNOT_LEAVE_CLOSED_GROUP("G-009", "마감된 그룹은 나갈 수 없습니다."),
+    HOST_CANNOT_LEAVE("G-010", "호스트는 그룹을 나갈 수 없습니다."),
+    ALREADY_LEFT("G-011", "이미 나간 그룹입니다"),
+
 
 
 
