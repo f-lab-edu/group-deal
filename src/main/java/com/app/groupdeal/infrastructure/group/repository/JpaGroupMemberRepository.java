@@ -38,10 +38,17 @@ public class JpaGroupMemberRepository implements GroupMemberRepository {
         groupMemberEntityRepository.deleteAll();
     }
 
+    @Override
+    public boolean existsByGroupIdAndUserId(Long groupId, Long userId) {
+        return groupMemberEntityRepository.existsByGroupIdAndUserId(groupId, userId);
+    }
+
+
     interface GroupMemberEntityRepository extends JpaRepository<GroupMemberEntity, Long> {
 
         List<GroupMemberEntity> findByGroupId(Long groupId);
 
+        boolean existsByGroupIdAndUserId(Long groupId, Long userId);
     }
 
 }
