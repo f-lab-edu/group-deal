@@ -76,12 +76,38 @@ public class GroupFacadeService {
             throw new BusinessException(ErrorType.ALREADY_JOINED);
         }
 
-        GroupMember updatedGroupMember = groupMemberService.joinGroup(groupId, userId, nickname);
+        GroupMember joinedGroupMember = groupMemberService.joinGroup(groupId, userId, nickname);
 
         groupService.increaseParticipant(groupId);
 
-        Group updatedGroup = groupService.findById(groupId);
+        Group joinedGroup = groupService.findById(groupId);
 
-        return JoinGroupResponseDto.of(updatedGroup, updatedGroupMember);
+        return JoinGroupResponseDto.of(joinedGroup, joinedGroupMember);
+    }
+
+    @Transactional
+    public LeaveGroupResponseDto leaveGroup(Long groupId, Long userId){
+
+        Group group = groupService.findById(groupId);
+
+        group.validateLeavable();
+
+        GroupMember member = groupMemberService.findByGroupMember(groupId, userId);
+
+        if(member.isHost()) {
+            throw new BusinessException(ErrorType.HOST_CANNOT_LEAVE);
+        }
+
+        if(member.isLeft()) {
+            throw new BusinessException(ErrorType.ALREADY_LEFT);
+        }
+
+        GroupMember leftGroupMember = groupMemberService.leaveGroup(groupId, userId);
+
+        groupService.decreaseParticipant(groupId);
+
+        Group leftGroup = groupService.findById(groupId);
+
+        return LeaveGroupResponseDto.of(leftGroup, leftGroupMember);
     }
 }

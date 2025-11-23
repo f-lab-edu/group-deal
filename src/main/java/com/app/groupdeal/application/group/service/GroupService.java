@@ -52,4 +52,13 @@ public class GroupService {
         group.increaseParticipant();
         groupRepository.save(group);
     }
+
+    @Transactional
+    public void decreaseParticipant(Long groupId) {
+        Group group = findById(groupId);
+        group.decreaseParticipant();
+        groupRepository.save(group);
+    }
+
+
 }
