@@ -40,7 +40,7 @@ public class GroupController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    @PostMapping("/{groupId}/join}")
+    @PostMapping("/{groupId}/join")
     public ResponseEntity<ApiResponse<JoinGroupResponseDto>> joinGroup(
             @PathVariable Long groupId,
             @LoginUser SessionUser sessionUser){
