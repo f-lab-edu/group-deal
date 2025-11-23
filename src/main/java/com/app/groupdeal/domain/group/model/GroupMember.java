@@ -79,6 +79,16 @@ public class GroupMember extends BaseDomain {
         this.groupMemberStatus = GroupMemberStatus.LEFT;
         this.leftAt = LocalDateTime.now();
     }
+
+    public void joinGroup() {
+
+        if(this.groupMemberStatus == GroupMemberStatus.JOINED){
+            throw new BusinessException(ErrorType.ALREADY_JOINED);
+        }
+
+        this.groupMemberStatus = GroupMemberStatus.JOINED;
+        this.joinedAt = LocalDateTime.now();
+    }
 }
 
 

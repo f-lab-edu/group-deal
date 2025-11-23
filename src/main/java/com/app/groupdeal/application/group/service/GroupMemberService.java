@@ -1,6 +1,7 @@
 package com.app.groupdeal.application.group.service;
 
 import com.app.groupdeal.domain.group.constants.GroupMemberStatus;
+import com.app.groupdeal.domain.group.model.Group;
 import com.app.groupdeal.domain.group.model.GroupMember;
 import com.app.groupdeal.domain.group.repository.GroupMemberRepository;
 import com.app.groupdeal.global.error.ErrorType;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +30,16 @@ public class GroupMemberService {
 
     @Transactional
     public GroupMember joinGroup(Long groupId, Long userId, String nickname) {
+
+        Optional<GroupMember> existingMember = groupMemberRepository.findByGroupIdAndUserId(groupId, userId);
+
+        if (existingMember.isPresent() && existingMember.get().getGroupMemberStatus() == GroupMemberStatus.LEFT) {
+
+            GroupMember member = existingMember.get();
+            member.joinGroup();
+            return groupMemberRepository.save(member);
+        }
+
         GroupMember member = GroupMember.createMember(groupId, userId, nickname);
         return groupMemberRepository.save(member);
     }
