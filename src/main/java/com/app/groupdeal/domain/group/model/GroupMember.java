@@ -18,10 +18,12 @@ public class GroupMember extends BaseDomain {
     private GroupMemberType groupMemberType;
     private GroupMemberStatus groupMemberStatus;
     private LocalDateTime joinedAt;
+    private LocalDateTime leftAt;
+
 
     @Builder
     public GroupMember(Long groupMemberId, Long groupId, Long userId, String nickname, GroupMemberType groupMemberType,
-                       GroupMemberStatus groupMemberStatus, LocalDateTime joinedAt) {
+                       GroupMemberStatus groupMemberStatus, LocalDateTime joinedAt, LocalDateTime leftAt) {
         this.groupMemberId = groupMemberId;
         this.groupId = groupId;
         this.userId = userId;
@@ -29,6 +31,7 @@ public class GroupMember extends BaseDomain {
         this.groupMemberType = groupMemberType;
         this.groupMemberStatus = groupMemberStatus;
         this.joinedAt = joinedAt;
+        this.leftAt = leftAt;
     }
 
     public static GroupMember createHost(Group group) {
@@ -39,6 +42,7 @@ public class GroupMember extends BaseDomain {
                 .groupMemberType(GroupMemberType.HOST)
                 .groupMemberStatus(GroupMemberStatus.JOINED)
                 .joinedAt(LocalDateTime.now())
+                .leftAt(null)
                 .build();
     }
 
@@ -51,6 +55,7 @@ public class GroupMember extends BaseDomain {
                 .groupMemberType(GroupMemberType.MEMBER)
                 .groupMemberStatus(GroupMemberStatus.JOINED)
                 .joinedAt(LocalDateTime.now())
+                .leftAt(null)
                 .build();
     }
 }
