@@ -45,8 +45,9 @@ public class GroupMemberEntity extends BaseEntity {
     private LocalDateTime leftAt;
 
     @Builder(access = AccessLevel.PRIVATE)
-    public GroupMemberEntity(Long groupId, Long userId, String nickname, GroupMemberType groupMemberType,
+    public GroupMemberEntity(Long groupMemberId, Long groupId, Long userId, String nickname, GroupMemberType groupMemberType,
                              GroupMemberStatus groupMemberStatus, LocalDateTime joinedAt, LocalDateTime leftAt) {
+        this.groupMemberId = groupMemberId;
         this.groupId = groupId;
         this.userId = userId;
         this.nickname = nickname;
@@ -58,6 +59,7 @@ public class GroupMemberEntity extends BaseEntity {
 
     public static GroupMemberEntity from(GroupMember groupMember) {
         return GroupMemberEntity.builder()
+                .groupMemberId(groupMember.getGroupMemberId())
                 .groupId(groupMember.getGroupId())
                 .userId(groupMember.getUserId())
                 .nickname(groupMember.getNickname())
