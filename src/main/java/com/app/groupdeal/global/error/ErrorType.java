@@ -28,6 +28,7 @@ public enum ErrorType {
     CANNOT_LEAVE_CLOSED_GROUP("G-009", "마감된 그룹은 나갈 수 없습니다."),
     HOST_CANNOT_LEAVE("G-010", "호스트는 그룹을 나갈 수 없습니다."),
     ALREADY_LEFT("G-011", "이미 나간 그룹입니다"),
+    INVALID_CLOSED_GROUP("G-012", "그룹을 모집 종료 할 수 없습니다."),
 
 
 

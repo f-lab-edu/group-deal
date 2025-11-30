@@ -147,5 +147,12 @@ public class Group extends BaseDomain {
         this.currentParticipants--;
     }
 
+    public void closedGroup(){
+        if (this.targetParticipants > this.currentParticipants) {
+            throw new BusinessException(ErrorType.INVALID_CLOSED_GROUP);
+        }
+        this.status = GroupStatus.CLOSED;
+    }
+
 
 }
