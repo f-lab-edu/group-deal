@@ -1,5 +1,6 @@
 package com.app.groupdeal.infrastructure.group.repository;
 
+import com.app.groupdeal.domain.group.constants.GroupMemberStatus;
 import com.app.groupdeal.domain.group.model.GroupMember;
 import com.app.groupdeal.domain.group.repository.GroupMemberRepository;
 import com.app.groupdeal.infrastructure.group.entity.GroupMemberEntity;
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -27,8 +29,8 @@ public class JpaGroupMemberRepository implements GroupMemberRepository {
     }
 
     @Override
-    public List<GroupMember> findByGroupId(Long groupId) {
-        return groupMemberEntityRepository.findByGroupId(groupId).stream()
+    public List<GroupMember> findByGroupIdAndStatus(Long groupId, GroupMemberStatus status) {
+        return groupMemberEntityRepository.findByGroupIdAndGroupMemberStatus(groupId, status).stream()
                 .map(GroupMemberEntity::toDomain)
                 .toList();
     }
@@ -38,10 +40,25 @@ public class JpaGroupMemberRepository implements GroupMemberRepository {
         groupMemberEntityRepository.deleteAll();
     }
 
+    @Override
+    public boolean existsByGroupIdAndUserIdAndStatus(Long groupId, Long userId, GroupMemberStatus status) {
+        return groupMemberEntityRepository.existsByGroupIdAndUserIdAndGroupMemberStatus(groupId, userId, status);
+    }
+
+    @Override
+    public Optional<GroupMember> findByGroupIdAndUserId(Long groupId, Long userId) {
+        return groupMemberEntityRepository.findByGroupIdAndUserId(groupId, userId)
+                .map(GroupMemberEntity::toDomain);
+    }
+
+
     interface GroupMemberEntityRepository extends JpaRepository<GroupMemberEntity, Long> {
 
-        List<GroupMemberEntity> findByGroupId(Long groupId);
+        List<GroupMemberEntity> findByGroupIdAndGroupMemberStatus(Long groupId, GroupMemberStatus status);
 
+        boolean existsByGroupIdAndUserIdAndGroupMemberStatus(Long groupId, Long userId, GroupMemberStatus status);
+
+        Optional<GroupMemberEntity> findByGroupIdAndUserId(Long groupId, Long userId);
     }
 
 }

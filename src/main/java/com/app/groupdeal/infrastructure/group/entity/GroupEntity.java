@@ -88,6 +88,7 @@ public class GroupEntity extends BaseEntity {
 
     public static GroupEntity from(Group group){
         return GroupEntity.builder()
+                .groupId(group.getGroupId())
                 .productName(group.getProductName())
                 .category(group.getCategory())
                 .description(group.getDescription())

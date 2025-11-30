@@ -113,4 +113,46 @@ public class Group extends BaseDomain {
     }
 
 
+    public void validateJoinable() {
+        if (this.status != GroupStatus.RECRUITING) {
+            throw new BusinessException(ErrorType.GROUP_NOT_RECRUITING);
+        }
+
+        if (this.currentParticipants >= this.targetParticipants) {
+            throw new BusinessException(ErrorType.GROUP_FULL);
+        }
+
+        if (this.deadlineAt.isBefore(LocalDateTime.now())) {
+            throw new BusinessException(ErrorType.GROUP_DEADLINE_PASSED);
+        }
+    }
+
+    public void validateLeavable() {
+        if (this.status != GroupStatus.RECRUITING) {
+            throw new BusinessException(ErrorType.CANNOT_LEAVE_CLOSED_GROUP);
+        }
+    }
+
+    public void increaseParticipant() {
+        if (this.currentParticipants >= this.targetParticipants) {
+            throw new BusinessException(ErrorType.GROUP_FULL);
+        }
+        this.currentParticipants++;
+    }
+
+    public void decreaseParticipant() {
+        if (this.currentParticipants <= 1) {
+            throw new BusinessException(ErrorType.CANNOT_DECREASE_PARTICIPANT);
+        }
+        this.currentParticipants--;
+    }
+
+    public void closedGroup(){
+        if (this.targetParticipants > this.currentParticipants) {
+            throw new BusinessException(ErrorType.INVALID_CLOSED_GROUP);
+        }
+        this.status = GroupStatus.CLOSED;
+    }
+
+
 }

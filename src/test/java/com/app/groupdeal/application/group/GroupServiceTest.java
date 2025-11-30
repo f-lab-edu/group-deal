@@ -1,14 +1,20 @@
 package com.app.groupdeal.application.group;
 
+import com.app.groupdeal.application.group.facade.GroupFacadeService;
 import com.app.groupdeal.application.group.service.GroupMemberService;
 import com.app.groupdeal.application.group.service.GroupService;
 import com.app.groupdeal.domain.group.constants.GroupMemberStatus;
 import com.app.groupdeal.domain.group.constants.GroupMemberType;
 import com.app.groupdeal.domain.group.constants.GroupStatus;
 import com.app.groupdeal.domain.group.model.Group;
+import com.app.groupdeal.global.error.ErrorType;
 import com.app.groupdeal.domain.group.model.GroupMember;
+import com.app.groupdeal.domain.group.repository.GroupMemberRepository;
 import com.app.groupdeal.domain.group.repository.GroupRepository;
 import com.app.groupdeal.global.error.exception.BusinessException;
+import com.app.groupdeal.presentation.group.dto.JoinGroupResponseDto;
+import com.app.groupdeal.presentation.group.dto.LeaveGroupResponseDto;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +42,38 @@ class GroupServiceTest {
 
     @Autowired
     private GroupRepository groupRepository;
+
+    @Autowired
+    private GroupFacadeService groupFacadeService;
+
+    @Autowired
+    private GroupMemberRepository groupMemberRepository;
+
+    private Group testGroup;
+    private Long hostUserId = 1L;
+    private Long memberUserId = 2L;
+
+    @BeforeEach
+    void setUp() {
+        groupRepository.deleteAll();
+        groupMemberRepository.deleteAll();
+
+        // 테스트용 그룹 생성
+        testGroup = Group.create(
+                "코스트코 견과류 3kg",
+                "식품",
+                "신선한 견과류입니다",
+                "500g씩",
+                30000,
+                6,
+                1440,
+                "강남역 3번 출구",
+                LocalDateTime.now().plusDays(2),
+                hostUserId,
+                "호스트"
+        );
+        testGroup = groupService.createGroup(testGroup);
+    }
 
     @Test
     @DisplayName("그룹 생성 성공")
@@ -113,7 +151,7 @@ class GroupServiceTest {
         Group savedGroup = groupService.createGroup(group);
 
         // GroupMemberService를 통해 참여자 확인
-        List<GroupMember> members = groupMemberService.findByGroupId(savedGroup.getGroupId());
+        List<GroupMember> members = groupMemberService.findJoinedMembers(savedGroup.getGroupId());
 
         // then
         assertThat(members).hasSize(1);
@@ -149,7 +187,7 @@ class GroupServiceTest {
         Page<Group> page = groupService.searchGroup(0, 10);
 
         // then
-        assertThat(page.getTotalElements()).isEqualTo(25);
+        assertThat(page.getTotalElements()).isEqualTo(26);
         assertThat(page.getTotalPages()).isEqualTo(3);
         assertThat(page.getContent()).hasSize(10);
         assertThat(page.getNumber()).isEqualTo(0);
@@ -203,7 +241,7 @@ class GroupServiceTest {
         Page<Group> page = groupService.searchGroup(0, 10);
 
         // then
-        assertThat(page.getContent()).hasSize(2);
+        assertThat(page.getContent()).hasSize(3);
         assertThat(page.getContent().get(0).getProductName()).isEqualTo("두 번째 상품");
         assertThat(page.getContent().get(1).getProductName()).isEqualTo("첫 번째 상품");
     }
@@ -302,6 +340,188 @@ class GroupServiceTest {
 
         // 생성 시간
         assertThat(foundGroup.getCreatedTime()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("그룹 참여 성공")
+    void joinGroup_Success() {
+        // given
+        String nickname = "참여자";
+
+        // when
+        JoinGroupResponseDto response = groupFacadeService.joinGroup(
+                testGroup.getGroupId(),
+                memberUserId,
+                nickname
+        );
+
+        // then
+        assertThat(response).isNotNull()
+                .extracting("groupId", "currentParticipants", "productName")
+                .containsExactly(testGroup.getGroupId(), 2, "코스트코 견과류 3kg");
+
+        assertThat(response.getJoinMember()).isNotNull()
+                .extracting("userId", "nickname", "memberType")
+                .containsExactly(memberUserId, nickname, GroupMemberType.MEMBER);
+        assertThat(response.getJoinMember().getJoinedAt()).isNotNull();
+
+        // DB 확인
+        Group updatedGroup = groupService.findById(testGroup.getGroupId());
+        assertThat(updatedGroup.getCurrentParticipants()).isEqualTo(2);
+
+        boolean isJoined = groupMemberService.isAlreadyJoined(testGroup.getGroupId(), memberUserId);
+        assertThat(isJoined).isTrue();
+    }
+
+    @Test
+    @DisplayName("자신이 생성한 그룹에는 참여 불가")
+    void joinGroup_CannotJoinOwnGroup() {
+        // when & then
+        assertThatThrownBy(() -> groupFacadeService.joinGroup(testGroup.getGroupId(), hostUserId, "호스트"))
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorType", ErrorType.CANNOT_JOIN_OWN_GROUP);
+    }
+
+    @Test
+    @DisplayName("이미 참여한 그룹에 재참여 불가")
+    void joinGroup_AlreadyJoined() {
+        // given
+        groupFacadeService.joinGroup(testGroup.getGroupId(), memberUserId, "참여자");
+
+        // when & then
+        assertThatThrownBy(() -> groupFacadeService.joinGroup(testGroup.getGroupId(), memberUserId, "참여자"))
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorType", ErrorType.ALREADY_JOINED);
+    }
+
+    @Test
+    @DisplayName("정원이 다 찬 그룹에 참여 불가")
+    void joinGroup_GroupFull() {
+        // given - 그룹을 정원까지 채움
+        for (int i = 2; i <= 6; i++) {
+            groupFacadeService.joinGroup(testGroup.getGroupId(), (long) i, "참여자" + i);
+        }
+
+        // when & then
+        assertThatThrownBy(() -> groupFacadeService.joinGroup(testGroup.getGroupId(), 7L, "참여자7"))
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorType", ErrorType.GROUP_FULL);
+    }
+
+    @Test
+    @DisplayName("모집 중이 아닌 그룹에 참여 불가")
+    void joinGroup_NotRecruiting() {
+        // given - 그룹을 정원까지 채우고 마감
+        for (int i = 2; i <= 6; i++) {
+            groupFacadeService.joinGroup(testGroup.getGroupId(), (long) i, "참여자" + i);
+        }
+        Group group = groupService.findById(testGroup.getGroupId());
+        group.closedGroup();
+        groupRepository.save(group);
+
+        // when & then
+        assertThatThrownBy(() -> groupFacadeService.joinGroup(testGroup.getGroupId(), 7L, "참여자7"))
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorType", ErrorType.GROUP_NOT_RECRUITING);
+    }
+
+    @Test
+    @DisplayName("그룹 나가기 성공")
+    void leaveGroup_Success() {
+        // given
+        groupFacadeService.joinGroup(testGroup.getGroupId(), memberUserId, "참여자");
+
+        // when
+        LeaveGroupResponseDto response = groupFacadeService.leaveGroup(
+                testGroup.getGroupId(),
+                memberUserId
+        );
+
+        // then
+        assertThat(response).isNotNull()
+                .extracting("groupId", "currentParticipants", "productName")
+                .containsExactly(testGroup.getGroupId(), 1, "코스트코 견과류 3kg");
+
+        assertThat(response.getLeaveMember()).isNotNull()
+                .extracting("userId", "nickname", "memberType")
+                .containsExactly(memberUserId, "참여자", GroupMemberType.MEMBER);
+        assertThat(response.getLeaveMember().getLeftAt()).isNotNull();
+
+        // DB 확인
+        Group updatedGroup = groupService.findById(testGroup.getGroupId());
+        assertThat(updatedGroup.getCurrentParticipants()).isEqualTo(1);
+
+        GroupMember member = groupMemberService.findByGroupMember(testGroup.getGroupId(), memberUserId);
+        assertThat(member.getGroupMemberStatus()).isEqualTo(GroupMemberStatus.LEFT);
+        assertThat(member.getLeftAt()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("호스트는 그룹을 나갈 수 없음")
+    void leaveGroup_HostCannotLeave() {
+        // when & then
+        assertThatThrownBy(() -> groupFacadeService.leaveGroup(testGroup.getGroupId(), hostUserId))
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorType", ErrorType.HOST_CANNOT_LEAVE);
+    }
+
+    @Test
+    @DisplayName("이미 나간 그룹은 다시 나갈 수 없음")
+    void leaveGroup_AlreadyLeft() {
+        // given
+        groupFacadeService.joinGroup(testGroup.getGroupId(), memberUserId, "참여자");
+        groupFacadeService.leaveGroup(testGroup.getGroupId(), memberUserId);
+
+        // when & then
+        assertThatThrownBy(() -> groupFacadeService.leaveGroup(testGroup.getGroupId(), memberUserId))
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorType", ErrorType.ALREADY_LEFT);
+    }
+
+    @Test
+    @DisplayName("마감된 그룹은 나갈 수 없음")
+    void leaveGroup_ClosedGroup() {
+        // given
+        groupFacadeService.joinGroup(testGroup.getGroupId(), memberUserId, "참여자");
+
+        // 그룹을 정원까지 채우고 마감
+        for (int i = 3; i <= 6; i++) {
+            groupFacadeService.joinGroup(testGroup.getGroupId(), (long) i, "참여자" + i);
+        }
+        Group group = groupService.findById(testGroup.getGroupId());
+        group.closedGroup();
+        groupRepository.save(group);
+
+        // when & then
+        assertThatThrownBy(() -> groupFacadeService.leaveGroup(testGroup.getGroupId(), memberUserId))
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorType", ErrorType.CANNOT_LEAVE_CLOSED_GROUP);
+    }
+
+    @Test
+    @DisplayName("그룹 나갔다가 재참여 성공")
+    void rejoinGroup_Success() {
+        // given - 참여 후 나가기
+        groupFacadeService.joinGroup(testGroup.getGroupId(), memberUserId, "참여자");
+        groupFacadeService.leaveGroup(testGroup.getGroupId(), memberUserId);
+
+        // when - 재참여
+        JoinGroupResponseDto response = groupFacadeService.joinGroup(
+                testGroup.getGroupId(),
+                memberUserId,
+                "참여자"
+        );
+
+        // then
+        assertThat(response).isNotNull();
+        assertThat(response.getCurrentParticipants()).isEqualTo(2);
+        assertThat(response.getJoinMember()).isNotNull();
+        assertThat(response.getJoinMember().getUserId()).isEqualTo(memberUserId);
+        assertThat(response.getJoinMember().getJoinedAt()).isNotNull();
+
+        GroupMember member = groupMemberService.findByGroupMember(testGroup.getGroupId(), memberUserId);
+        assertThat(member.getGroupMemberStatus()).isEqualTo(GroupMemberStatus.JOINED);
+        assertThat(member.getJoinedAt()).isNotNull();
     }
 
 }

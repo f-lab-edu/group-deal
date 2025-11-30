@@ -33,8 +33,6 @@ public class GroupService {
 
         return savedGroup;
 
-
-
     }
 
     public Page<Group> searchGroup(int page, int size) {
@@ -47,4 +45,20 @@ public class GroupService {
         return groupRepository.findById(groupId)
                 .orElseThrow(() -> new BusinessException(ErrorType.NOT_FOUND, "그룹"));
     }
+
+    @Transactional
+    public void increaseParticipant(Long groupId) {
+        Group group = findById(groupId);
+        group.increaseParticipant();
+        groupRepository.save(group);
+    }
+
+    @Transactional
+    public void decreaseParticipant(Long groupId) {
+        Group group = findById(groupId);
+        group.decreaseParticipant();
+        groupRepository.save(group);
+    }
+
+
 }

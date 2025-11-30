@@ -42,25 +42,31 @@ public class GroupMemberEntity extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime joinedAt;
 
+    private LocalDateTime leftAt;
+
     @Builder(access = AccessLevel.PRIVATE)
-    public GroupMemberEntity(Long groupId, Long userId, String nickname, GroupMemberType groupMemberType,
-                             GroupMemberStatus groupMemberStatus, LocalDateTime joinedAt) {
+    public GroupMemberEntity(Long groupMemberId, Long groupId, Long userId, String nickname, GroupMemberType groupMemberType,
+                             GroupMemberStatus groupMemberStatus, LocalDateTime joinedAt, LocalDateTime leftAt) {
+        this.groupMemberId = groupMemberId;
         this.groupId = groupId;
         this.userId = userId;
         this.nickname = nickname;
         this.groupMemberType = groupMemberType;
         this.groupMemberStatus = groupMemberStatus;
         this.joinedAt = joinedAt;
+        this.leftAt = leftAt;
     }
 
     public static GroupMemberEntity from(GroupMember groupMember) {
         return GroupMemberEntity.builder()
+                .groupMemberId(groupMember.getGroupMemberId())
                 .groupId(groupMember.getGroupId())
                 .userId(groupMember.getUserId())
                 .nickname(groupMember.getNickname())
                 .groupMemberType(groupMember.getGroupMemberType())
                 .groupMemberStatus(groupMember.getGroupMemberStatus())
                 .joinedAt(groupMember.getJoinedAt())
+                .leftAt(groupMember.getLeftAt())
                 .build();
     }
 
@@ -73,6 +79,7 @@ public class GroupMemberEntity extends BaseEntity {
                 .groupMemberType(groupMemberType)
                 .groupMemberStatus(groupMemberStatus)
                 .joinedAt(joinedAt)
+                .leftAt(leftAt)
                 .build();
     }
 }

@@ -18,6 +18,19 @@ public enum ErrorType {
 
     //그룹
     INVALID_MEETING_DATETIME("G-001", "거래 일시는 모집 마감 시간 이후여야 합니다."),
+    CANNOT_JOIN_OWN_GROUP("G-002", "자신이 생성한 그룹에는 참여할 수 없습니다."),
+    INVALID_PARTICIPANT_COUNT("G-003", "참여자 수가 올바르지 않습니다"),
+    GROUP_NOT_RECRUITING("G-004", "모집 중인 그룹이 아닙니다."),
+    GROUP_FULL("G-005", "모집 인원이 초과되었습니다."),
+    GROUP_DEADLINE_PASSED("G-006", "모집 기간이 종료되었습니다."),
+    ALREADY_JOINED("G-007", "이미 참여한 그룹입니다."),
+    CANNOT_DECREASE_PARTICIPANT("G-008", "참여자는 최소 1명 이상입니다."),
+    CANNOT_LEAVE_CLOSED_GROUP("G-009", "마감된 그룹은 나갈 수 없습니다."),
+    HOST_CANNOT_LEAVE("G-010", "호스트는 그룹을 나갈 수 없습니다."),
+    ALREADY_LEFT("G-011", "이미 나간 그룹입니다"),
+    INVALID_CLOSED_GROUP("G-012", "그룹을 모집 종료 할 수 없습니다."),
+
+
 
 
     // 기타 에러

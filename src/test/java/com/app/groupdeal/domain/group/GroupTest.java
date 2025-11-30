@@ -1,7 +1,11 @@
 package com.app.groupdeal.domain.group;
 
+import com.app.groupdeal.domain.group.constants.GroupMemberStatus;
+import com.app.groupdeal.domain.group.constants.GroupMemberType;
 import com.app.groupdeal.domain.group.constants.GroupStatus;
 import com.app.groupdeal.domain.group.model.Group;
+import com.app.groupdeal.domain.group.model.GroupMember;
+import com.app.groupdeal.global.error.ErrorType;
 import com.app.groupdeal.global.error.exception.BusinessException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -144,4 +148,223 @@ class GroupTest {
         assertThat(remainingMinutes).isLessThanOrEqualTo(120);
     }
 
+    @Test
+    @DisplayName("참여 가능 여부 검증 - 모집중이 아닌 경우 실패")
+    void validateJoinable_NotRecruiting_Fail() {
+        // given - Builder로 직접 CLOSED 상태로 생성
+        Group group = Group.builder()
+                .productName("코스트코 견과류")
+                .category("식품")
+                .description("신선한 견과류")
+                .dividedUnit("500g씩")
+                .originalPrice(30000)
+                .targetParticipants(6)
+                .currentParticipants(6)
+                .status(GroupStatus.CLOSED) 
+                .recruitmentMinutes(1440)
+                .deadlineAt(LocalDateTime.now().plusDays(1))
+                .meetingLocation("강남역 3번 출구")
+                .meetingAt(LocalDateTime.now().plusDays(2))
+                .hostMemberId(1L)
+                .hostMemberName("홍길동")
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> group.validateJoinable())
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorType", ErrorType.GROUP_NOT_RECRUITING);
+    }
+
+    @Test
+    @DisplayName("참여 가능 여부 검증 - 인원 초과 시 실패")
+    void validateJoinable_Full_Fail() {
+        // given
+        Group group = Group.create(
+                "테스트", "식품", "설명", "단위",
+                10000, 2, 1440, "강남역",
+                LocalDateTime.now().plusDays(2),
+                1L, "호스트"
+        );
+        group.increaseParticipant();
+
+        // when & then
+        assertThatThrownBy(group::validateJoinable)
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("초과");
+    }
+
+    @Test
+    @DisplayName("참여자 증가 성공")
+    void increaseParticipant_Success() {
+        // given
+        Group group = Group.create(
+                "테스트", "식품", "설명", "단위",
+                10000, 5, 1440, "강남역",
+                LocalDateTime.now().plusDays(2),
+                1L, "호스트"
+        );
+        int before = group.getCurrentParticipants();
+
+        // when
+        group.increaseParticipant();
+
+        // then
+        assertThat(group.getCurrentParticipants()).isEqualTo(before + 1);
+    }
+
+    @Test
+    @DisplayName("참여자 증가 - 인원 초과 시 실패")
+    void increaseParticipant_Full_Fail() {
+        // given
+        Group group = Group.create(
+                "테스트", "식품", "설명", "단위",
+                10000, 2, 1440, "강남역",
+                LocalDateTime.now().plusDays(2),
+                1L, "호스트"
+        );
+        group.increaseParticipant();
+
+        // when & then
+        assertThatThrownBy(group::increaseParticipant)
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    @DisplayName("마감 시간이 지난 그룹은 참여 불가")
+    void validateJoinable_DeadlinePassed() {
+        // given
+        Group group = Group.builder()
+                .status(GroupStatus.RECRUITING)
+                .currentParticipants(3)
+                .targetParticipants(6)
+                .deadlineAt(LocalDateTime.now().minusMinutes(1))
+                .build();
+
+        // when & then
+        assertThatThrownBy(group::validateJoinable)
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorType", ErrorType.GROUP_DEADLINE_PASSED);
+    }
+
+    @Test
+    @DisplayName("마감된 그룹은 나갈 수 없음")
+    void validateLeavable_ClosedGroup() {
+        // given
+        Group group = Group.builder()
+                .status(GroupStatus.CLOSED)
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> group.validateLeavable())
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorType", ErrorType.CANNOT_LEAVE_CLOSED_GROUP);
+    }
+
+    @Test
+    @DisplayName("참여자 수 감소 성공")
+    void decreaseParticipant_Success() {
+        // given
+        Group group = Group.builder()
+                .currentParticipants(3)
+                .targetParticipants(6)
+                .build();
+
+        // when
+        group.decreaseParticipant();
+
+        // then
+        assertThat(group.getCurrentParticipants()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("참여자가 1명일 때 감소 불가")
+    void decreaseParticipant_MinimumParticipant() {
+        // given
+        Group group = Group.builder()
+                .currentParticipants(1)
+                .targetParticipants(6)
+                .build();
+
+        // when & then
+        assertThatThrownBy(group::decreaseParticipant)
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorType", ErrorType.CANNOT_DECREASE_PARTICIPANT);
+    }
+
+    @Test
+    @DisplayName("그룹 나가기 성공")
+    void leaveGroup_Success() {
+        // given
+        GroupMember member = GroupMember.createMember(1L, 2L, "김철수");
+
+        // when
+        member.leaveGroup();
+
+        // then
+        assertThat(member.getGroupMemberStatus()).isEqualTo(GroupMemberStatus.LEFT);
+        assertThat(member.getLeftAt()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("호스트는 그룹을 나갈 수 없음")
+    void leaveGroup_HostCannotLeave() {
+        // given
+        Group group = Group.builder()
+                .groupId(1L)
+                .hostMemberId(1L)
+                .hostMemberName("홍길동")
+                .build();
+        GroupMember hostMember = GroupMember.createHost(group);
+
+        // when & then
+        assertThatThrownBy(() -> hostMember.leaveGroup())
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorType", ErrorType.HOST_CANNOT_LEAVE);
+    }
+
+    @Test
+    @DisplayName("이미 나간 그룹은 다시 나갈 수 없음")
+    void leaveGroup_AlreadyLeft() {
+        // given
+        GroupMember member = GroupMember.createMember(1L, 2L, "김철수");
+        member.leaveGroup();
+
+        // when & then
+        assertThatThrownBy(() -> member.leaveGroup())
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorType", ErrorType.ALREADY_LEFT);
+    }
+
+    @Test
+    @DisplayName("그룹 재참여 성공")
+    void joinGroup_Success() {
+        // given
+        GroupMember member = GroupMember.builder()
+                .groupId(1L)
+                .userId(2L)
+                .nickname("김철수")
+                .groupMemberType(GroupMemberType.MEMBER)
+                .groupMemberStatus(GroupMemberStatus.LEFT)
+                .leftAt(LocalDateTime.now().minusDays(1))
+                .build();
+
+        // when
+        member.joinGroup();
+
+        // then
+        assertThat(member.getGroupMemberStatus()).isEqualTo(GroupMemberStatus.JOINED);
+        assertThat(member.getJoinedAt()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("이미 참여한 그룹에 재참여 불가")
+    void joinGroup_AlreadyJoined() {
+        // given
+        GroupMember member = GroupMember.createMember(1L, 2L, "김철수");
+
+        // when & then
+        assertThatThrownBy(() -> member.joinGroup())
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorType", ErrorType.ALREADY_JOINED);
+    }
 }
