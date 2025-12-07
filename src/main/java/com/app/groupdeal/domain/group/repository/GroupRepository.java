@@ -13,5 +13,7 @@ public interface GroupRepository {
 
     Optional<Group> findById(Long groupId);
 
+    Optional<Group> findByIdWithLock(Long groupId);
+
     void deleteAll();
 }

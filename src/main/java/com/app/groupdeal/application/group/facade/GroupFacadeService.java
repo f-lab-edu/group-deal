@@ -64,7 +64,7 @@ public class GroupFacadeService {
     @Transactional
     public JoinGroupResponseDto joinGroup(Long groupId, Long userId, String nickname) {
 
-        Group group = groupService.findById(groupId);
+        Group group = groupService.findByIdWithLock(groupId);
 
         if(group.getHostMemberId().equals(userId)) {
             throw new BusinessException(ErrorType.CANNOT_JOIN_OWN_GROUP);

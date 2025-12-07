@@ -84,8 +84,8 @@ public class GroupConcurrencyTest {
     }
 
     @Test
-    @DisplayName("동시 참여 요청 시 정원 초과 방지 - 10명이 1자리에 동시 참여")
-    void concurrentJoin_TenUsersOneSlot() throws InterruptedException {
+    @DisplayName("비관적 락 적용 후 - 동시 참여 테스트")
+    void concurrentJoin_WithPessimisticLock() throws InterruptedException {
 
         // given
         User firstUser = User.builder()
@@ -120,10 +120,10 @@ public class GroupConcurrencyTest {
                 try {
                     groupFacadeService.joinGroup(testGroupId, user.getUserId(), user.getNickname());
                     successCount.incrementAndGet();
-                    System.out.println("참여 성공: " + user.getNickname());
+                    System.out.println("✅ 참여 성공: " + user.getNickname());
                 } catch (BusinessException e) {
                     failCount.incrementAndGet();
-                    System.out.println("참여 실패: " + user.getNickname() + " - " + e.getMessage());
+                    System.out.println("❌ 참여 실패: " + user.getNickname() + " - " + e.getMessage());
                 } finally {
                     latch.countDown();
                 }
@@ -134,18 +134,18 @@ public class GroupConcurrencyTest {
         executorService.shutdown();
 
         // then
-        System.out.println("\n=== 테스트 결과 ===");
-        System.out.println("성공: " + successCount.get() + "명");
-        System.out.println("실패: " + failCount.get() + "명");
-
-        assertThat(successCount.get()).isNotEqualTo(1);
-        assertThat(failCount.get()).isNotEqualTo(9);
+        System.out.println("\n=== 비관적 락 적용 결과 ===");
+        System.out.println("✅ 성공: " + successCount.get() + "명");
+        System.out.println("❌ 실패: " + failCount.get() + "명");
 
         Group finalGroup = groupService.findById(testGroupId);
+        System.out.println("최종 참여자 수: " + finalGroup.getCurrentParticipants() + "/" + finalGroup.getTargetParticipants());
+
+        // 비관적 락으로 정원이 정확히 지켜져야 함
+        assertThat(successCount.get()).isEqualTo(1);
+        assertThat(failCount.get()).isEqualTo(9);
         assertThat(finalGroup.getCurrentParticipants()).isEqualTo(3);
         assertThat(finalGroup.getTargetParticipants()).isEqualTo(3);
-
-        System.out.println("최종 참여자 수: " + finalGroup.getCurrentParticipants() + "/" + finalGroup.getTargetParticipants());
     }
 
 
