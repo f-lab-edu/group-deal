@@ -14,7 +14,15 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Table(name = "group_members")
+@Table(
+        name = "group_members",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_group_user_status",
+                        columnNames = {"group_id", "user_id", "group_member_status"}
+                )
+        }
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class GroupMemberEntity extends BaseEntity {
 

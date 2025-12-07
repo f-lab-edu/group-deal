@@ -7,6 +7,7 @@ import com.app.groupdeal.domain.group.repository.GroupMemberRepository;
 import com.app.groupdeal.global.error.ErrorType;
 import com.app.groupdeal.global.error.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +42,12 @@ public class GroupMemberService {
         }
 
         GroupMember member = GroupMember.createMember(groupId, userId, nickname);
-        return groupMemberRepository.save(member);
+
+        try {
+            return groupMemberRepository.save(member);
+        } catch (DataIntegrityViolationException e) {
+            throw new BusinessException(ErrorType.ALREADY_JOINED);
+        }
     }
 
     public GroupMember findByGroupMember(Long groupId, Long userId) {

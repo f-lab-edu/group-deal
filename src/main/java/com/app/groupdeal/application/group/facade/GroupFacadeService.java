@@ -72,10 +72,6 @@ public class GroupFacadeService {
 
         group.validateJoinable();
 
-        if (groupMemberService.isAlreadyJoined(groupId, userId)) {
-            throw new BusinessException(ErrorType.ALREADY_JOINED);
-        }
-
         GroupMember joinedGroupMember = groupMemberService.joinGroup(groupId, userId, nickname);
 
         groupService.increaseParticipant(groupId);

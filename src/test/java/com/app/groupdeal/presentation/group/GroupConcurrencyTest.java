@@ -1,9 +1,11 @@
 package com.app.groupdeal.presentation.group;
 
 import com.app.groupdeal.application.group.facade.GroupFacadeService;
+import com.app.groupdeal.application.group.service.GroupMemberService;
 import com.app.groupdeal.application.group.service.GroupService;
 import com.app.groupdeal.application.user.service.UserService;
 import com.app.groupdeal.domain.group.model.Group;
+import com.app.groupdeal.domain.group.model.GroupMember;
 import com.app.groupdeal.domain.group.repository.GroupMemberRepository;
 import com.app.groupdeal.domain.group.repository.GroupRepository;
 import com.app.groupdeal.domain.user.User;
@@ -36,6 +38,9 @@ public class GroupConcurrencyTest {
 
     @Autowired
     private GroupService groupService;
+
+    @Autowired
+    private GroupMemberService groupMemberService;
 
     @Autowired
     private UserService userService;
@@ -148,5 +153,53 @@ public class GroupConcurrencyTest {
         assertThat(finalGroup.getTargetParticipants()).isEqualTo(3);
     }
 
+    @Test
+    @DisplayName("같은 사용자가 중복 참여 시도 - DB 유니크 제약조건으로 방지")
+    void duplicateJoin_PreventedByUniqueConstraint() throws InterruptedException {
+
+        // given
+        User user = User.builder()
+                .email("duplicate@test.com")
+                .password("1234")
+                .nickname("중복테스트")
+                .build();
+        User savedUser = userService.createUser(user);
+
+        // when - 같은 사용자가 10번 동시 참여 시도
+        int numberOfAttempts = 10;
+        ExecutorService executorService = Executors.newFixedThreadPool(numberOfAttempts);
+        CountDownLatch latch = new CountDownLatch(numberOfAttempts);
+
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger failCount = new AtomicInteger(0);
+
+        for (int i = 0; i < numberOfAttempts; i++) {
+            executorService.execute(() -> {
+                try {
+                    groupFacadeService.joinGroup(testGroupId, savedUser.getUserId(), savedUser.getNickname());
+                    successCount.incrementAndGet();
+                } catch (BusinessException e) {
+                    failCount.incrementAndGet();
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+        executorService.shutdown();
+
+        // then - 정확히 1번만 성공해야 함
+        assertThat(successCount.get()).isEqualTo(1);
+        assertThat(failCount.get()).isEqualTo(9);
+
+        // DB 확인
+        List<GroupMember> members = groupMemberService.findJoinedMembers(testGroupId);
+        long userMemberCount = members.stream()
+                .filter(m -> m.getUserId().equals(savedUser.getUserId()))
+                .count();
+
+        assertThat(userMemberCount).isEqualTo(1);  // 1명만 존재
+    }
 
 }
