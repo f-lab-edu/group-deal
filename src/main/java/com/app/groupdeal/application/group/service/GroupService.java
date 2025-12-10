@@ -46,6 +46,11 @@ public class GroupService {
                 .orElseThrow(() -> new BusinessException(ErrorType.NOT_FOUND, "그룹"));
     }
 
+    public Group findByIdWithLock(Long groupId) {
+        return groupRepository.findByIdWithLock(groupId)
+                .orElseThrow(() -> new BusinessException(ErrorType.NOT_FOUND, "그룹"));
+    }
+
     @Transactional
     public void increaseParticipant(Long groupId) {
         Group group = findById(groupId);

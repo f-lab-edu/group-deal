@@ -1,9 +1,11 @@
 package com.app.groupdeal.presentation.group;
 
 import com.app.groupdeal.application.group.facade.GroupFacadeService;
+import com.app.groupdeal.application.group.service.GroupMemberService;
 import com.app.groupdeal.application.group.service.GroupService;
 import com.app.groupdeal.application.user.service.UserService;
 import com.app.groupdeal.domain.group.model.Group;
+import com.app.groupdeal.domain.group.model.GroupMember;
 import com.app.groupdeal.domain.group.repository.GroupMemberRepository;
 import com.app.groupdeal.domain.group.repository.GroupRepository;
 import com.app.groupdeal.domain.user.User;
@@ -36,6 +38,9 @@ public class GroupConcurrencyTest {
 
     @Autowired
     private GroupService groupService;
+
+    @Autowired
+    private GroupMemberService groupMemberService;
 
     @Autowired
     private UserService userService;
@@ -84,8 +89,8 @@ public class GroupConcurrencyTest {
     }
 
     @Test
-    @DisplayName("동시 참여 요청 시 정원 초과 방지 - 10명이 1자리에 동시 참여")
-    void concurrentJoin_TenUsersOneSlot() throws InterruptedException {
+    @DisplayName("비관적 락 적용 후 - 동시 참여 테스트")
+    void concurrentJoin_WithPessimisticLock() throws InterruptedException {
 
         // given
         User firstUser = User.builder()
@@ -120,10 +125,10 @@ public class GroupConcurrencyTest {
                 try {
                     groupFacadeService.joinGroup(testGroupId, user.getUserId(), user.getNickname());
                     successCount.incrementAndGet();
-                    System.out.println("참여 성공: " + user.getNickname());
+                    System.out.println("✅ 참여 성공: " + user.getNickname());
                 } catch (BusinessException e) {
                     failCount.incrementAndGet();
-                    System.out.println("참여 실패: " + user.getNickname() + " - " + e.getMessage());
+                    System.out.println("❌ 참여 실패: " + user.getNickname() + " - " + e.getMessage());
                 } finally {
                     latch.countDown();
                 }
@@ -134,19 +139,67 @@ public class GroupConcurrencyTest {
         executorService.shutdown();
 
         // then
-        System.out.println("\n=== 테스트 결과 ===");
-        System.out.println("성공: " + successCount.get() + "명");
-        System.out.println("실패: " + failCount.get() + "명");
-
-        assertThat(successCount.get()).isNotEqualTo(1);
-        assertThat(failCount.get()).isNotEqualTo(9);
+        System.out.println("\n=== 비관적 락 적용 결과 ===");
+        System.out.println("✅ 성공: " + successCount.get() + "명");
+        System.out.println("❌ 실패: " + failCount.get() + "명");
 
         Group finalGroup = groupService.findById(testGroupId);
+        System.out.println("최종 참여자 수: " + finalGroup.getCurrentParticipants() + "/" + finalGroup.getTargetParticipants());
+
+        // 비관적 락으로 정원이 정확히 지켜져야 함
+        assertThat(successCount.get()).isEqualTo(1);
+        assertThat(failCount.get()).isEqualTo(9);
         assertThat(finalGroup.getCurrentParticipants()).isEqualTo(3);
         assertThat(finalGroup.getTargetParticipants()).isEqualTo(3);
-
-        System.out.println("최종 참여자 수: " + finalGroup.getCurrentParticipants() + "/" + finalGroup.getTargetParticipants());
     }
 
+    @Test
+    @DisplayName("같은 사용자가 중복 참여 시도 - DB 유니크 제약조건으로 방지")
+    void duplicateJoin_PreventedByUniqueConstraint() throws InterruptedException {
+
+        // given
+        User user = User.builder()
+                .email("duplicate@test.com")
+                .password("1234")
+                .nickname("중복테스트")
+                .build();
+        User savedUser = userService.createUser(user);
+
+        // when - 같은 사용자가 10번 동시 참여 시도
+        int numberOfAttempts = 10;
+        ExecutorService executorService = Executors.newFixedThreadPool(numberOfAttempts);
+        CountDownLatch latch = new CountDownLatch(numberOfAttempts);
+
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger failCount = new AtomicInteger(0);
+
+        for (int i = 0; i < numberOfAttempts; i++) {
+            executorService.execute(() -> {
+                try {
+                    groupFacadeService.joinGroup(testGroupId, savedUser.getUserId(), savedUser.getNickname());
+                    successCount.incrementAndGet();
+                } catch (BusinessException e) {
+                    failCount.incrementAndGet();
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+        executorService.shutdown();
+
+        // then - 정확히 1번만 성공해야 함
+        assertThat(successCount.get()).isEqualTo(1);
+        assertThat(failCount.get()).isEqualTo(9);
+
+        // DB 확인
+        List<GroupMember> members = groupMemberService.findJoinedMembers(testGroupId);
+        long userMemberCount = members.stream()
+                .filter(m -> m.getUserId().equals(savedUser.getUserId()))
+                .count();
+
+        assertThat(userMemberCount).isEqualTo(1);  // 1명만 존재
+    }
 
 }
