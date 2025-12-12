@@ -16,17 +16,11 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - PASSWORD=1234
-      - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/test?serverTimezone=Asia/Seoul
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=1234
     depends_on:
-      - mariadb
-  mariadb:
-    image: mariadb:11
-    container_name: mariadb
+      - mysql
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
     deploy:
       resources:
         limits:
@@ -37,25 +31,25 @@ services:
           memory: 1024M
     restart: always
     ports:
-      - "3308:3306"
+      - "3307:3306"
     environment:
-      MARIADB_DATABASE: 'test'
-      MARIADB_ROOT_PASSWORD: '1234'
+      MYSQL_DATABASE: 'groupdeal'
+      MYSQL_ROOT_PASSWORD: '1234'
       TZ: Asia/Seoul
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
     volumes:
-      - ./db/mariadb/data:/var/lib/mysql
-      - ./db/mariadb/init:/docker-entrypoint-initdb.d
+      - ./db/mysql/data:/var/lib/mysql
+      - ./db/mysql/init:/docker-entrypoint-initdb.d
 
-  mariadb-exporter:
-    container_name: mariadb-exporter
+  mysql-exporter:
+    container_name: mysql-exporter
     image: prom/mysqld-exporter
     command:
       - "--mysqld.username=root:1234"
-      - "--mysqld.address=mariadb:3306"
+      - "--mysqld.address=mysql:3306"
     ports:
       - "9104:9104"
     depends_on:
-      - mariadb
+      - mysql
