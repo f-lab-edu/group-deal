@@ -32,6 +32,12 @@ logging:
   level:
     com.app.groupdeal: debug
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+
 ---
 spring:
   config:
