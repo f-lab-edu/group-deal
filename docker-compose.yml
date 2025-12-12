@@ -16,6 +16,12 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - PASSWORD=1234
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/test?serverTimezone=Asia/Seoul
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=1234
     depends_on:
       - mariadb
   mariadb:
@@ -31,7 +37,7 @@ services:
           memory: 1024M
     restart: always
     ports:
-      - "3306:3306"
+      - "3308:3306"
     environment:
       MARIADB_DATABASE: 'test'
       MARIADB_ROOT_PASSWORD: '1234'
