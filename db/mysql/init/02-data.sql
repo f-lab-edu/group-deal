@@ -18,7 +18,7 @@ DROP PROCEDURE IF EXISTS generate_dummy_users$$
 CREATE PROCEDURE generate_dummy_users()
 BEGIN
   DECLARE i INT DEFAULT 1;
-  WHILE i <= 10 DO
+  WHILE i <= 1000 DO
     INSERT INTO users (email, password, nickname, created_time, updated_time, created_by, updated_by)
     VALUES (
       CONCAT('test', i, '@test.com'),

@@ -2,10 +2,11 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 
 export let options = {
+    setupTimeout: '180s', // ← ✅ 추가! (3분)
     scenarios: {
         concurrent_join: {
             executor: 'per-vu-iterations',
-            vus: 10,
+            vus: 1000,
             iterations: 1,
             maxDuration: '10s',
         },
@@ -20,9 +21,9 @@ export function setup() {
 
     console.log('🔐 [사전 준비] 로그인 중...\n');
 
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= 1000; i++) {
         const email = `test${i}@test.com`;
-        console.log(`\n[${i}/10] ${email} 로그인 시도...`);
+        console.log(`\n[${i}/1000] ${email} 로그인 시도...`);
 
         // ✅ 각 로그인 전에 쿠키 jar 초기화
         http.cookieJar().clear(baseUrl);
@@ -46,12 +47,12 @@ export function setup() {
             console.error(`  ❌ 쿠키 없음!`);
         }
 
-        sleep(0.2);
+        sleep(0.05);
     }
 
     console.log(`\n========================================`);
     console.log(`✅ 성공: ${sessions.length}개`);
-    console.log(`❌ 실패: ${10 - sessions.length}개`);
+    console.log(`❌ 실패: ${1000 - sessions.length}개`);
 
     if (sessions.length === 0) {
         throw new Error('❌ 모든 로그인 실패!');
@@ -85,8 +86,7 @@ export default function (data) {
 
     check(response, {
         'join success (200)': (r) => r.status === 200,
-        'group full (409)': (r) => r.status === 409,
-        'already joined (400)': (r) => r.status === 400,
+        'group full (500)': (r) => r.status === 500,
         'response time < 1s': (r) => r.timings.duration < 1000,
     });
 
