@@ -2,64 +2,121 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 
 export let options = {
-    setupTimeout: '180s', // ← ✅ 추가! (3분)
+    setupTimeout: '300s',
     scenarios: {
         concurrent_join: {
             executor: 'per-vu-iterations',
             vus: 1000,
             iterations: 1,
-            maxDuration: '10s',
+            maxDuration: '30s',
         },
     },
 };
 
 export function setup() {
     const baseUrl = 'http://localhost:8080';
-    const params = { headers: { 'Content-Type': 'application/json' } };
-
     let sessions = [];
 
-    console.log('🔐 [사전 준비] 로그인 중...\n');
+    // ... 서버 준비 대기 ...
 
-    for (let i = 1; i <= 1000; i++) {
-        const email = `test${i}@test.com`;
-        console.log(`\n[${i}/1000] ${email} 로그인 시도...`);
+    const totalUsers = 1000;
+    const batchSize = 100;
+    const batches = Math.ceil(totalUsers / batchSize);
 
-        // ✅ 각 로그인 전에 쿠키 jar 초기화
+    console.log(`🔐 [사전 준비] ${totalUsers}명 로그인 시작\n`);
+
+    for (let batch = 0; batch < batches; batch++) {
+        const startIdx = batch * batchSize + 1;
+        const endIdx = Math.min((batch + 1) * batchSize, totalUsers);
+        const currentBatchSize = endIdx - startIdx + 1;
+
+        console.log(`\n📦 배치 ${batch + 1}/${batches}: test${startIdx}~test${endIdx}`);
+
         http.cookieJar().clear(baseUrl);
 
-        let res = http.post(
-            `${baseUrl}/api/v1/auth/login`,
-            JSON.stringify({ email: email, password: '1234' }),
-            params
-        );
-
-        console.log(`  상태 코드: ${res.status}`);
-        console.log(`  응답 본문: ${res.body}`);
-
-        if (res.cookies && res.cookies['JSESSIONID']) {
-            const cookie = res.cookies['JSESSIONID'][0];
-            if (cookie && cookie.value) {
-                sessions.push(cookie.value);
-                console.log(`  ✅ 성공! 세션: ${cookie.value.substring(0, 16)}...`);
-            }
-        } else {
-            console.error(`  ❌ 쿠키 없음!`);
+        let requests = [];
+        for (let i = startIdx; i <= endIdx; i++) {
+            requests.push({
+                method: 'POST',
+                url: `${baseUrl}/api/v1/auth/login`,
+                body: JSON.stringify({
+                    email: `test${i}@test.com`,
+                    password: '1234'
+                }),
+                params: {
+                    headers: { 'Content-Type': 'application/json' },
+                    timeout: '30s'
+                }
+            });
         }
 
-        sleep(0.05);
+        const startTime = Date.now();
+        let responses = http.batch(requests);
+        const duration = Date.now() - startTime;
+
+        let batchSuccessCount = 0;
+        let batchFailCount = 0;
+        let batchSessions = []; // ✅ 배치 내 세션 저장
+
+        responses.forEach((res, idx) => {
+            if (res.status === 200 && res.cookies && res.cookies['JSESSIONID']) {
+                const cookie = res.cookies['JSESSIONID'][0];
+                if (cookie && cookie.value) {
+                    const sessionId = cookie.value;
+                    sessions.push(sessionId);
+                    batchSessions.push(sessionId);
+                    batchSuccessCount++;
+                }
+            } else {
+                batchFailCount++;
+                if (res.error) {
+                    console.log(`  ⚠️ 실패: ${res.error}`);
+                }
+            }
+        });
+
+        // ✅ 배치 내 중복 검사
+        const uniqueBatchSessions = new Set(batchSessions);
+        const batchDuplicates = batchSessions.length - uniqueBatchSessions.size;
+
+        if (batchDuplicates > 0) {
+            console.log(`  ⚠️ 배치 내 중복 세션: ${batchDuplicates}개`);
+        }
+
+        console.log(`  ⏱️  소요 시간: ${duration}ms`);
+        console.log(`  ✅ 성공: ${batchSuccessCount}/${currentBatchSize}`);
+        console.log(`  ❌ 실패: ${batchFailCount}/${currentBatchSize}`);
+        console.log(`  📊 누적: ${sessions.length}/${totalUsers}`);
+
+        if (batch < batches - 1) {
+            sleep(1);
+        }
     }
 
+    // ✅ 전체 중복 검사
+    const uniqueSessions = new Set(sessions);
+    const totalDuplicates = sessions.length - uniqueSessions.size;
+
     console.log(`\n========================================`);
-    console.log(`✅ 성공: ${sessions.length}개`);
-    console.log(`❌ 실패: ${1000 - sessions.length}개`);
+    console.log(`✅ 총 성공: ${sessions.length}/${totalUsers}`);
+    console.log(`❌ 총 실패: ${totalUsers - sessions.length}/${totalUsers}`);
+    console.log(`🔍 고유 세션: ${uniqueSessions.size}개`);
+    console.log(`⚠️ 중복 세션: ${totalDuplicates}개`);
+    console.log(`📈 성공률: ${(sessions.length / totalUsers * 100).toFixed(2)}%`);
+    console.log(`📈 고유 세션률: ${(uniqueSessions.size / sessions.length * 100).toFixed(2)}%`);
+    console.log(`========================================\n`);
+
+    if (totalDuplicates > 0) {
+        console.log(`⚠️ 경고: ${totalDuplicates}개의 중복 세션이 발견되었습니다!`);
+        console.log(`일부 VU가 동일한 세션을 사용할 수 있습니다.\n`);
+    }
 
     if (sessions.length === 0) {
         throw new Error('❌ 모든 로그인 실패!');
     }
 
     sleep(3);
-    console.log('\n📊 [측정 시작]\n');
+    console.log('📊 [측정 시작]\n');
 
     return {
         sessions,
@@ -69,9 +126,13 @@ export function setup() {
 
 export default function (data) {
     const vu = __VU;
-    const sessionId = data.sessions[(vu - 1) % data.sessions.length];
 
-    console.log(`[VU ${vu}] 그룹 참여 시도! (세션: ${sessionId.substring(0, 8)}...)`);
+    if (vu > data.sessions.length) {
+        console.log(`⚠️ VU ${vu}: 세션 부족, 스킵`);
+        return;
+    }
+
+    const sessionId = data.sessions[vu - 1];
 
     let response = http.post(
         `${data.baseUrl}/api/v1/groups/1/join`,
@@ -95,8 +156,6 @@ export default function (data) {
     } else {
         console.log(`❌ VU ${vu}: 실패 (${response.status})`);
     }
-
-    sleep(0.1);
 }
 
 export function teardown(data) {
