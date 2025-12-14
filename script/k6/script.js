@@ -22,8 +22,10 @@ export function setup() {
 
     for (let i = 1; i <= 10; i++) {
         const email = `test${i}@test.com`;
-
         console.log(`\n[${i}/10] ${email} 로그인 시도...`);
+
+        // ✅ 각 로그인 전에 쿠키 jar 초기화
+        http.cookieJar().clear(baseUrl);
 
         let res = http.post(
             `${baseUrl}/api/v1/auth/login`,
@@ -32,45 +34,19 @@ export function setup() {
         );
 
         console.log(`  상태 코드: ${res.status}`);
+        console.log(`  응답 본문: ${res.body}`);
 
-        // ✅ 쿠키 객체 전체 출력
-        console.log(`  쿠키 객체 타입: ${typeof res.cookies}`);
-        console.log(`  쿠키 객체: ${JSON.stringify(res.cookies, null, 2)}`);
-
-        // ✅ 쿠키 키 확인
-        if (res.cookies) {
-            const cookieKeys = Object.keys(res.cookies);
-            console.log(`  쿠키 키 개수: ${cookieKeys.length}`);
-            console.log(`  쿠키 키 목록: ${cookieKeys.join(', ')}`);
-        }
-
-        // ✅ JSESSIONID 직접 확인
         if (res.cookies && res.cookies['JSESSIONID']) {
-            console.log(`  JSESSIONID 존재: true`);
-            console.log(`  JSESSIONID 타입: ${typeof res.cookies['JSESSIONID']}`);
-            console.log(`  JSESSIONID 길이: ${res.cookies['JSESSIONID'].length}`);
-
-            if (Array.isArray(res.cookies['JSESSIONID'])) {
-                console.log(`  JSESSIONID는 배열입니다`);
-                const cookie = res.cookies['JSESSIONID'][0];
-                console.log(`  첫 번째 쿠키: ${JSON.stringify(cookie)}`);
-
-                if (cookie && cookie.value) {
-                    const sessionId = cookie.value;
-                    sessions.push(sessionId);
-                    console.log(`  ✅ 성공! 세션: ${sessionId.substring(0, 16)}...`);
-                } else {
-                    console.error(`  ❌ 쿠키 객체에 value가 없습니다!`);
-                }
-            } else {
-                console.error(`  ❌ JSESSIONID가 배열이 아닙니다!`);
+            const cookie = res.cookies['JSESSIONID'][0];
+            if (cookie && cookie.value) {
+                sessions.push(cookie.value);
+                console.log(`  ✅ 성공! 세션: ${cookie.value.substring(0, 16)}...`);
             }
         } else {
-            console.error(`  ❌ JSESSIONID 쿠키가 없습니다!`);
+            console.error(`  ❌ 쿠키 없음!`);
         }
 
-        // 작은 딜레이 추가
-        sleep(0.1);
+        sleep(0.2);
     }
 
     console.log(`\n========================================`);
