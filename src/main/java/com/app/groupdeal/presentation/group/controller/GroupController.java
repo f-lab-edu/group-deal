@@ -57,5 +57,16 @@ public class GroupController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
+    //테스트용
+    @PostMapping("/{groupId}/join-test")
+    public ResponseEntity<ApiResponse<JoinGroupResponseDto>> joinGroupTest(
+            @PathVariable Long groupId,
+            @RequestParam Long userId,
+            @RequestParam String nickname){
+        JoinGroupResponseDto response = groupFacadeService.joinGroup(groupId, userId, nickname);
+        return ResponseEntity.ok(ApiResponse.success(response));
+
+    }
+
 
 }
