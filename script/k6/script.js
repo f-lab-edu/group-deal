@@ -1,5 +1,12 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
+import { Counter } from 'k6/metrics';
+
+const successCount = new Counter('custom_success');
+const groupFullCount = new Counter('custom_group_full');
+const timeoutCount = new Counter('custom_timeout');
+const connectionResetCount = new Counter('custom_connection_reset');
+const otherErrorCount = new Counter('custom_other_error');
 
 export let options = {
     scenarios: {
@@ -7,7 +14,6 @@ export let options = {
             executor: 'per-vu-iterations',
             vus: 5000,
             iterations: 1,
-            maxDuration: '3000s',
         },
     },
 };
@@ -38,16 +44,59 @@ export default function (data) {
         }
     );
 
-    check(response, {
-        'join success (200)': (r) => r.status === 200,
-        'group full (500)': (r) => r.status === 500,
-        'response time < 1s': (r) => r.timings.duration < 1000,
-    });
+    // ✅ 에러 타입 분류
+    let errorType = 'none';
 
     if (response.status === 200) {
-        console.log(`✅ VU ${vu}: 성공! (userId: ${userId})`);
+        // 성공
+        successCount.add(1);
+        errorType = 'success';
+    } else if (response.status === 500) {
+        // GROUP_FULL
+        groupFullCount.add(1);
+        errorType = 'group_full';
+    } else if (response.error) {
+        // 에러가 있는 경우 (status === 0)
+        const errorMsg = response.error.toLowerCase();
+
+        if (errorMsg.includes('timeout')) {
+            timeoutCount.add(1);
+            errorType = 'timeout';
+        } else if (errorMsg.includes('connection reset')) {
+            connectionResetCount.add(1);
+            errorType = 'connection_reset';
+        } else {
+            otherErrorCount.add(1);
+            errorType = 'other_error';
+        }
     } else {
-        console.log(`❌ VU ${vu}: 실패 (${response.status}, userId: ${userId})`);
+        // 기타 HTTP 에러
+        otherErrorCount.add(1);
+        errorType = 'http_error';
+    }
+
+    // ✅ 체크
+    check(response, {
+        'success (200)': (r) => r.status === 200,
+        'group full (500)': (r) => r.status === 500,
+        'timeout error': (r) => r.error && r.error.toLowerCase().includes('timeout'),
+        'connection reset': (r) => r.error && r.error.toLowerCase().includes('connection reset'),
+        'other error': (r) => r.status !== 200 && r.status !== 500 && r.error &&
+            !r.error.toLowerCase().includes('timeout') &&
+            !r.error.toLowerCase().includes('connection reset'),
+    });
+
+    // ✅ 로그 출력
+    if (errorType === 'success') {
+        console.log(`✅ VU ${vu}: 성공! (userId: ${userId})`);
+    } else if (errorType === 'group_full') {
+        console.log(`🔒 VU ${vu}: 그룹 가득참 (userId: ${userId})`);
+    } else if (errorType === 'timeout') {
+        console.log(`⏰ VU ${vu}: 타임아웃 (userId: ${userId})`);
+    } else if (errorType === 'connection_reset') {
+        console.log(`💥 VU ${vu}: 연결 끊김 (userId: ${userId})`);
+    } else {
+        console.log(`❓ VU ${vu}: 기타 에러 (${response.status}, ${response.error}, userId: ${userId})`);
     }
 }
 
