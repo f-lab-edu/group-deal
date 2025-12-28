@@ -1,6 +1,7 @@
 package com.app.groupdeal.application.group.facade;
 
 import com.app.groupdeal.application.group.service.GroupMemberService;
+import com.app.groupdeal.application.group.service.GroupQueueService;
 import com.app.groupdeal.application.group.service.GroupService;
 import com.app.groupdeal.application.user.service.UserService;
 import com.app.groupdeal.domain.group.model.Group;
@@ -10,6 +11,7 @@ import com.app.groupdeal.global.error.exception.BusinessException;
 import com.app.groupdeal.presentation.common.dto.PageResponse;
 import com.app.groupdeal.presentation.group.dto.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import com.app.groupdeal.domain.user.User;
@@ -17,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -26,6 +28,7 @@ public class GroupFacadeService {
     private final UserService userService;
     private final GroupService groupService;
     private final GroupMemberService groupMemberService;
+    private final GroupQueueService queueService;
 
     @Transactional
     public CreateGroupResponseDto createGroup(Long userId, CreateGroupRequestDto request) {
@@ -106,4 +109,46 @@ public class GroupFacadeService {
 
         return LeaveGroupResponseDto.of(leftGroup, leftGroupMember);
     }
+
+    /**
+     * Redis INCR 방식 그룹 참여
+     * - 순서 보장
+     * - 대기열 없음
+     */
+    @Transactional
+    public JoinGroupResponseDto joinGroupWithINCR(Long groupId, Long userId, String nickname) {
+
+        // 1️⃣ Redis에서 원자적으로 순번 발급 (초고속! ~1ms)
+        Long queueNumber = queueService.issueQueueNumber(groupId);
+        log.info("🎫 [그룹 {}] [유저 {}] 순번 발급: {}", groupId, userId, queueNumber);
+
+        // 2️⃣ 그룹 정보 조회 (락 없이!)
+        Group group = groupService.findById(groupId);
+
+        // 3️⃣ 기본 검증
+        group.validateJoinable();
+
+        // 4️⃣ 순번으로 참여 가능 여부 판단
+        Integer targetParticipants = group.getTargetParticipants();
+
+        if (queueNumber <= targetParticipants) {
+            // ✅ 순번이 목표 인원 이내 → 즉시 참여
+            GroupMember joinedGroupMember = groupMemberService.joinGroupWithINCR(groupId, userId, nickname, queueNumber.intValue());
+
+            // 현재 참여자 수 증가
+            groupService.increaseParticipant(groupId);
+
+            Group joinedGroup = groupService.findById(groupId);
+
+            log.info("✅ [유저 {}] 참여 완료 (순번: {})", userId, queueNumber);
+
+            return JoinGroupResponseDto.ofWithQueue(joinedGroup, joinedGroupMember);
+        } else {
+            // ❌ 순번이 목표 인원 초과 → 마감
+            log.warn("❌ [유저 {}] 그룹 마감 (순번: {}, 목표: {})",
+                    userId, queueNumber, targetParticipants);
+            throw new BusinessException(ErrorType.GROUP_FULL);
+        }
+    }
+
 }

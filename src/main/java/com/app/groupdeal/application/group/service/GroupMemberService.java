@@ -50,6 +50,27 @@ public class GroupMemberService {
         }
     }
 
+    @Transactional
+    public GroupMember joinGroupWithINCR(Long groupId, Long userId, String nickname, Integer queueNumber) {
+
+        Optional<GroupMember> existingMember = groupMemberRepository.findByGroupIdAndUserId(groupId, userId);
+
+        if (existingMember.isPresent() && existingMember.get().getGroupMemberStatus() == GroupMemberStatus.LEFT) {
+
+            GroupMember member = existingMember.get();
+            member.rejoinGroup(queueNumber);
+            return groupMemberRepository.save(member);
+        }
+
+        GroupMember member = GroupMember.createMemberWithQueue(groupId, userId, nickname, queueNumber);
+
+        try {
+            return groupMemberRepository.save(member);
+        } catch (DataIntegrityViolationException e) {
+            throw new BusinessException(ErrorType.ALREADY_JOINED);
+        }
+    }
+
     public GroupMember findByGroupMember(Long groupId, Long userId) {
         return groupMemberRepository.findByGroupIdAndUserId(groupId, userId)
                 .orElseThrow(() -> new BusinessException(ErrorType.NOT_FOUND, "그룹 멤버"));

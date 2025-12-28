@@ -13,7 +13,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -35,6 +37,13 @@ public class JpaGroupRepository implements GroupRepository {
     @Override
     public Page<Group> findAll(Pageable pageable) {
         return groupEntityRepository.findAll(pageable).map(GroupEntity::toDomain);
+    }
+
+    @Override
+    public List<Group> findAll() {
+        return groupEntityRepository.findAll().stream()
+                .map(GroupEntity::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override

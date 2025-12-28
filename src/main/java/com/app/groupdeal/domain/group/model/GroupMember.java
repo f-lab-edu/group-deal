@@ -51,14 +51,13 @@ public class GroupMember extends BaseDomain {
                 .build();
     }
 
-    public static GroupMember createMemberWithQueue(Long groupId, Long userId, String nickname,
-                                                    Integer queueNumber, GroupMemberStatus status) {
+    public static GroupMember createMemberWithQueue(Long groupId, Long userId, String nickname, Integer queueNumber) {
         return GroupMember.builder()
                 .groupId(groupId)
                 .userId(userId)
                 .nickname(nickname)
                 .groupMemberType(GroupMemberType.MEMBER)
-                .groupMemberStatus(status)
+                .groupMemberStatus(GroupMemberStatus.JOINED)
                 .queueNumber(queueNumber)
                 .joinedAt(LocalDateTime.now())
                 .leftAt(null)
@@ -105,6 +104,17 @@ public class GroupMember extends BaseDomain {
 
         this.groupMemberStatus = GroupMemberStatus.JOINED;
         this.joinedAt = LocalDateTime.now();
+    }
+
+    public void rejoinGroup(Integer newQueueNumber) {
+        if(this.groupMemberStatus == GroupMemberStatus.JOINED){
+            throw new BusinessException(ErrorType.ALREADY_JOINED);
+        }
+
+        this.groupMemberStatus = GroupMemberStatus.JOINED;
+        this.queueNumber = newQueueNumber;
+        this.joinedAt = LocalDateTime.now();
+        this.leftAt = null;
     }
 }
 
