@@ -20,10 +20,11 @@ import java.time.LocalDateTime;
                 @UniqueConstraint(
                         name = "uk_group_user_status",
                         columnNames = {"group_id", "user_id", "group_member_status"}
+                ),
+                @UniqueConstraint(
+                        name = "uk_group_queue_number",
+                        columnNames = {"group_id", "queue_number"}
                 )
-        },
-        indexes = {
-                @Index(name = "idx_group_queue", columnList = "group_id, queue_number")
         }
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

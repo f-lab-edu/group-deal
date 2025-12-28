@@ -41,11 +41,13 @@ CREATE TABLE IF NOT EXISTS group_members (
     nickname VARCHAR(255),
     group_member_type VARCHAR(20) NOT NULL,
     group_member_status VARCHAR(20) NOT NULL,
+    queue_number INT DEFAULT NULL COMMENT '참여 순번',
     joined_at DATETIME NOT NULL,
     left_at DATETIME,
     created_time DATETIME,
     updated_time DATETIME,
     created_by VARCHAR(255),
     updated_by VARCHAR(255),
-    CONSTRAINT uk_group_user_status UNIQUE (group_id, user_id, group_member_status)
+    CONSTRAINT uk_group_user_status UNIQUE (group_id, user_id, group_member_status),
+    CONSTRAINT uk_group_queue_number UNIQUE (group_id, queue_number),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
