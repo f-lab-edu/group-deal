@@ -21,6 +21,9 @@ import java.time.LocalDateTime;
                         name = "uk_group_user_status",
                         columnNames = {"group_id", "user_id", "group_member_status"}
                 )
+        },
+        indexes = {
+                @Index(name = "idx_group_queue", columnList = "group_id, queue_number")
         }
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -47,6 +50,9 @@ public class GroupMemberEntity extends BaseEntity {
     @Column(nullable = false, length = 20)
     private GroupMemberStatus groupMemberStatus;
 
+    @Column(name = "queue_number")
+    private Integer queueNumber;
+
     @Column(nullable = false)
     private LocalDateTime joinedAt;
 
@@ -54,13 +60,14 @@ public class GroupMemberEntity extends BaseEntity {
 
     @Builder(access = AccessLevel.PRIVATE)
     public GroupMemberEntity(Long groupMemberId, Long groupId, Long userId, String nickname, GroupMemberType groupMemberType,
-                             GroupMemberStatus groupMemberStatus, LocalDateTime joinedAt, LocalDateTime leftAt) {
+                             GroupMemberStatus groupMemberStatus, Integer queueNumber, LocalDateTime joinedAt, LocalDateTime leftAt) {
         this.groupMemberId = groupMemberId;
         this.groupId = groupId;
         this.userId = userId;
         this.nickname = nickname;
         this.groupMemberType = groupMemberType;
         this.groupMemberStatus = groupMemberStatus;
+        this.queueNumber = queueNumber;
         this.joinedAt = joinedAt;
         this.leftAt = leftAt;
     }
@@ -73,6 +80,7 @@ public class GroupMemberEntity extends BaseEntity {
                 .nickname(groupMember.getNickname())
                 .groupMemberType(groupMember.getGroupMemberType())
                 .groupMemberStatus(groupMember.getGroupMemberStatus())
+                .queueNumber(groupMember.getQueueNumber())
                 .joinedAt(groupMember.getJoinedAt())
                 .leftAt(groupMember.getLeftAt())
                 .build();
@@ -86,6 +94,7 @@ public class GroupMemberEntity extends BaseEntity {
                 .nickname(nickname)
                 .groupMemberType(groupMemberType)
                 .groupMemberStatus(groupMemberStatus)
+                .queueNumber(queueNumber)
                 .joinedAt(joinedAt)
                 .leftAt(leftAt)
                 .build();

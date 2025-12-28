@@ -19,19 +19,21 @@ public class GroupMember extends BaseDomain {
     private String nickname;
     private GroupMemberType groupMemberType;
     private GroupMemberStatus groupMemberStatus;
+    private Integer queueNumber;
     private LocalDateTime joinedAt;
     private LocalDateTime leftAt;
 
 
     @Builder
     public GroupMember(Long groupMemberId, Long groupId, Long userId, String nickname, GroupMemberType groupMemberType,
-                       GroupMemberStatus groupMemberStatus, LocalDateTime joinedAt, LocalDateTime leftAt) {
+                       GroupMemberStatus groupMemberStatus, Integer queueNumber, LocalDateTime joinedAt, LocalDateTime leftAt) {
         this.groupMemberId = groupMemberId;
         this.groupId = groupId;
         this.userId = userId;
         this.nickname = nickname;
         this.groupMemberType = groupMemberType;
         this.groupMemberStatus = groupMemberStatus;
+        this.queueNumber = queueNumber;
         this.joinedAt = joinedAt;
         this.leftAt = leftAt;
     }
@@ -43,6 +45,21 @@ public class GroupMember extends BaseDomain {
                 .nickname(group.getHostMemberName())
                 .groupMemberType(GroupMemberType.HOST)
                 .groupMemberStatus(GroupMemberStatus.JOINED)
+                .queueNumber(1)
+                .joinedAt(LocalDateTime.now())
+                .leftAt(null)
+                .build();
+    }
+
+    public static GroupMember createMemberWithQueue(Long groupId, Long userId, String nickname,
+                                                    Integer queueNumber, GroupMemberStatus status) {
+        return GroupMember.builder()
+                .groupId(groupId)
+                .userId(userId)
+                .nickname(nickname)
+                .groupMemberType(GroupMemberType.MEMBER)
+                .groupMemberStatus(status)
+                .queueNumber(queueNumber)
                 .joinedAt(LocalDateTime.now())
                 .leftAt(null)
                 .build();
