@@ -12,7 +12,7 @@ export let options = {
     scenarios: {
         concurrent_join: {
             executor: 'per-vu-iterations',
-            vus: 20000,
+            vus: 20,
             iterations: 1,
         },
     },
@@ -50,6 +50,13 @@ export default function (data) {
     if (response.status === 200) {
         // 성공
         successCount.add(1);
+        try {
+            const body = JSON.parse(response.body);
+            const queueNumber = body.data?.joinMember?.queueNumber;
+            console.log(`✅ VU ${vu}: 성공! (순번: ${queueNumber})`);
+        } catch (e) {
+            console.log(`✅ VU ${vu}: 성공!`);
+        }
         errorType = 'success';
     } else if (response.status === 500) {
         // GROUP_FULL

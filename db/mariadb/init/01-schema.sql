@@ -49,5 +49,5 @@ CREATE TABLE IF NOT EXISTS group_members (
     created_by VARCHAR(255),
     updated_by VARCHAR(255),
     CONSTRAINT uk_group_user_status UNIQUE (group_id, user_id, group_member_status),
-    CONSTRAINT uk_group_queue_number UNIQUE (group_id, queue_number),
+    CONSTRAINT uk_group_queue_number UNIQUE (group_id, queue_number)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
