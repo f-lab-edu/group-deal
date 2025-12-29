@@ -118,28 +118,22 @@ public class GroupFacadeService {
     @Transactional
     public JoinGroupResponseDto joinGroupWithINCR(Long groupId, Long userId, String nickname) {
 
-        // 1️⃣ Redis에서 원자적으로 순번 발급 (초고속! ~1ms)
         Long queueNumber = queueService.issueQueueNumber(groupId);
         log.info("🎫 [그룹 {}] [유저 {}] 순번 발급: {}", groupId, userId, queueNumber);
 
-        // 2️⃣ 그룹 정보 조회 (락 없이!)
         Group group = groupService.findById(groupId);
 
-        // 3️⃣ 기본 검증
         group.validateJoinable();
 
-        // 4️⃣ 순번으로 참여 가능 여부 판단
         Integer targetParticipants = group.getTargetParticipants();
-
         if (queueNumber <= targetParticipants) {
             // ✅ 순번이 목표 인원 이내 → 즉시 참여
             GroupMember joinedGroupMember = groupMemberService.joinGroupWithINCR(groupId, userId, nickname, queueNumber.intValue());
 
-            // 현재 참여자 수 증가
-            groupService.increaseParticipant(groupId);
-
-            Group joinedGroup = groupService.findById(groupId);
-
+//            // 현재 참여자 수 증가
+//            groupService.increaseParticipant(groupId);
+//            Group joinedGroup = groupService.findById(groupId);
+            Group joinedGroup = group.withCurrentParticipants(queueNumber.intValue());
             log.info("✅ [유저 {}] 참여 완료 (순번: {})", userId, queueNumber);
 
             return JoinGroupResponseDto.ofWithQueue(joinedGroup, joinedGroupMember);
