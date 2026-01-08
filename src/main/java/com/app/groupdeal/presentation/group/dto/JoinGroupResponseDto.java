@@ -35,8 +35,27 @@ public class JoinGroupResponseDto {
         private Long userId;
         private String nickname;
         private GroupMemberType memberType;
+        private Integer queueNumber;
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime joinedAt;
+    }
+
+    public static JoinGroupResponseDto ofWithQueue(Group group, GroupMember groupMember) {
+        return JoinGroupResponseDto.builder()
+                .groupId(group.getGroupId())
+                .productName(group.getProductName())
+                .status(group.getStatus())
+                .targetParticipants(group.getTargetParticipants())
+                .currentParticipants(group.getCurrentParticipants())
+                .progressRate(group.calculateProgressRate())
+                .joinMember(MemberInfo.builder()
+                        .userId(groupMember.getUserId())
+                        .nickname(groupMember.getNickname())
+                        .memberType(groupMember.getGroupMemberType())
+                        .queueNumber(groupMember.getQueueNumber())
+                        .joinedAt(groupMember.getJoinedAt())
+                        .build())
+                .build();
     }
 
     public static JoinGroupResponseDto of(Group group, GroupMember groupMember) {

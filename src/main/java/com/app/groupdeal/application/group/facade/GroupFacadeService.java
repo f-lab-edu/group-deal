@@ -1,6 +1,7 @@
 package com.app.groupdeal.application.group.facade;
 
 import com.app.groupdeal.application.group.service.GroupMemberService;
+import com.app.groupdeal.application.group.service.GroupQueueService;
 import com.app.groupdeal.application.group.service.GroupService;
 import com.app.groupdeal.application.user.service.UserService;
 import com.app.groupdeal.domain.group.model.Group;
@@ -10,6 +11,7 @@ import com.app.groupdeal.global.error.exception.BusinessException;
 import com.app.groupdeal.presentation.common.dto.PageResponse;
 import com.app.groupdeal.presentation.group.dto.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import com.app.groupdeal.domain.user.User;
@@ -17,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -26,6 +28,7 @@ public class GroupFacadeService {
     private final UserService userService;
     private final GroupService groupService;
     private final GroupMemberService groupMemberService;
+    private final GroupQueueService queueService;
 
     @Transactional
     public CreateGroupResponseDto createGroup(Long userId, CreateGroupRequestDto request) {
@@ -62,26 +65,6 @@ public class GroupFacadeService {
     }
 
     @Transactional
-    public JoinGroupResponseDto joinGroup(Long groupId, Long userId, String nickname) {
-
-        Group group = groupService.findByIdWithLock(groupId);
-
-        if(group.getHostMemberId().equals(userId)) {
-            throw new BusinessException(ErrorType.CANNOT_JOIN_OWN_GROUP);
-        }
-
-        group.validateJoinable();
-
-        GroupMember joinedGroupMember = groupMemberService.joinGroup(groupId, userId, nickname);
-
-        groupService.increaseParticipant(groupId);
-
-        Group joinedGroup = groupService.findById(groupId);
-
-        return JoinGroupResponseDto.of(joinedGroup, joinedGroupMember);
-    }
-
-    @Transactional
     public LeaveGroupResponseDto leaveGroup(Long groupId, Long userId){
 
         Group group = groupService.findById(groupId);
@@ -106,4 +89,31 @@ public class GroupFacadeService {
 
         return LeaveGroupResponseDto.of(leftGroup, leftGroupMember);
     }
+
+    @Transactional
+    public JoinGroupResponseDto joinGroup(Long groupId, Long userId, String nickname) {
+
+        Long queueNumber = queueService.issueQueueNumber(groupId);
+        log.info("🎫 [그룹 {}] [유저 {}] 순번 발급: {}", groupId, userId, queueNumber);
+
+        Group group = groupService.findById(groupId);
+
+        group.validateJoinable();
+
+        Integer targetParticipants = group.getTargetParticipants();
+        if (queueNumber <= targetParticipants) {
+
+            GroupMember joinedGroupMember = groupMemberService.joinGroup(groupId, userId, nickname, queueNumber.intValue());
+
+            Group joinedGroup = group.withCurrentParticipants(queueNumber.intValue());
+            log.info("✅ [유저 {}] 참여 완료 (순번: {})", userId, queueNumber);
+
+            return JoinGroupResponseDto.ofWithQueue(joinedGroup, joinedGroupMember);
+        } else {
+            log.warn("❌ [유저 {}] 그룹 마감 (순번: {}, 목표: {})",
+                    userId, queueNumber, targetParticipants);
+            throw new BusinessException(ErrorType.GROUP_FULL);
+        }
+    }
+
 }

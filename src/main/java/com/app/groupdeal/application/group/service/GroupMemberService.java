@@ -29,19 +29,20 @@ public class GroupMemberService {
         return groupMemberRepository.existsByGroupIdAndUserIdAndStatus(groupId, userId, GroupMemberStatus.JOINED);
     }
 
+
     @Transactional
-    public GroupMember joinGroup(Long groupId, Long userId, String nickname) {
+    public GroupMember joinGroup(Long groupId, Long userId, String nickname, Integer queueNumber) {
 
         Optional<GroupMember> existingMember = groupMemberRepository.findByGroupIdAndUserId(groupId, userId);
 
         if (existingMember.isPresent() && existingMember.get().getGroupMemberStatus() == GroupMemberStatus.LEFT) {
 
             GroupMember member = existingMember.get();
-            member.joinGroup();
+            member.rejoinGroup(queueNumber);
             return groupMemberRepository.save(member);
         }
 
-        GroupMember member = GroupMember.createMember(groupId, userId, nickname);
+        GroupMember member = GroupMember.createMemberWithQueue(groupId, userId, nickname, queueNumber);
 
         try {
             return groupMemberRepository.save(member);

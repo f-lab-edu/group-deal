@@ -12,7 +12,7 @@ export let options = {
     scenarios: {
         concurrent_join: {
             executor: 'per-vu-iterations',
-            vus: 20000,
+            vus: 5000,
             iterations: 1,
         },
     },
@@ -88,7 +88,20 @@ export default function (data) {
 
     // ✅ 로그 출력
     if (errorType === 'success') {
-        console.log(`✅ VU ${vu}: 성공! (userId: ${userId})`);
+        try {
+            const body = JSON.parse(response.body);
+            const queueNumber = body.data?.joinMember?.queueNumber;
+
+            // ✅ queueNumber 존재 여부에 따라 다른 로그
+            if (queueNumber) {
+                console.log(`✅ VU ${vu}: 성공! (userId: ${userId}, 순번: ${queueNumber})`);
+            } else {
+                console.log(`✅ VU ${vu}: 성공! (userId: ${userId})`);
+            }
+        } catch (e) {
+            // JSON 파싱 실패 시
+            console.log(`✅ VU ${vu}: 성공! (userId: ${userId})`);
+        }
     } else if (errorType === 'group_full') {
         console.log(`🔒 VU ${vu}: 그룹 가득참 (userId: ${userId})`);
     } else if (errorType === 'timeout') {

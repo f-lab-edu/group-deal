@@ -18,6 +18,8 @@ services:
       - "8080:8080"
     depends_on:
       - mysql
+      - redis
+
   mysql:
     image: mysql:8.0
     container_name: mysql
@@ -42,6 +44,24 @@ services:
     volumes:
       - ./db/mysql/data:/var/lib/mysql
       - ./db/mysql/init:/docker-entrypoint-initdb.d
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - ./db/redis/data:/data
 
   mysql-exporter:
     container_name: mysql-exporter

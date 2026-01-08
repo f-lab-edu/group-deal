@@ -82,6 +82,27 @@ public class Group extends BaseDomain {
                 .build();
     }
 
+    public Group withCurrentParticipants(Integer newCurrentParticipants) {
+        return Group.builder()
+                .groupId(this.groupId)
+                .productName(this.productName)
+                .category(this.category)
+                .description(this.description)
+                .dividedUnit(this.dividedUnit)
+                .originalPrice(this.originalPrice)
+                .targetParticipants(this.targetParticipants)
+                .recruitmentMinutes(this.recruitmentMinutes)
+                .deadlineAt(this.deadlineAt)
+                .meetingLocation(this.meetingLocation)
+                .meetingAt(this.meetingAt)
+                .hostMemberId(this.hostMemberId)
+                .hostMemberName(this.hostMemberName)
+                .status(this.status)
+                .currentParticipants(newCurrentParticipants)
+                .createdTime(this.createdTime)
+                .build();
+    }
+
     public Integer calculatePricePerPersonRoundedUp() {
         return (int) Math.ceil((double) originalPrice / targetParticipants);
     }
