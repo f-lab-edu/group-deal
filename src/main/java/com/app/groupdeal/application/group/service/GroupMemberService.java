@@ -29,29 +29,9 @@ public class GroupMemberService {
         return groupMemberRepository.existsByGroupIdAndUserIdAndStatus(groupId, userId, GroupMemberStatus.JOINED);
     }
 
-    @Transactional
-    public GroupMember joinGroup(Long groupId, Long userId, String nickname) {
-
-        Optional<GroupMember> existingMember = groupMemberRepository.findByGroupIdAndUserId(groupId, userId);
-
-        if (existingMember.isPresent() && existingMember.get().getGroupMemberStatus() == GroupMemberStatus.LEFT) {
-
-            GroupMember member = existingMember.get();
-            member.joinGroup();
-            return groupMemberRepository.save(member);
-        }
-
-        GroupMember member = GroupMember.createMember(groupId, userId, nickname);
-
-        try {
-            return groupMemberRepository.save(member);
-        } catch (DataIntegrityViolationException e) {
-            throw new BusinessException(ErrorType.ALREADY_JOINED);
-        }
-    }
 
     @Transactional
-    public GroupMember joinGroupWithINCR(Long groupId, Long userId, String nickname, Integer queueNumber) {
+    public GroupMember joinGroup(Long groupId, Long userId, String nickname, Integer queueNumber) {
 
         Optional<GroupMember> existingMember = groupMemberRepository.findByGroupIdAndUserId(groupId, userId);
 

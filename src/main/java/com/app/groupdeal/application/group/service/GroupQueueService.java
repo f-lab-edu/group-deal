@@ -18,26 +18,12 @@ public class GroupQueueService {
 
     private final StringRedisTemplate redisTemplate;
 
-    /**
-     * 서버 시작 시 Redis 초기화 (테스트용)
-     */
-    @PostConstruct
-    public void init() {
-        initializeQueue(1L, 2);
-        log.info("✅ Redis 초기화 완료");
-    }
 
-    /**
-     * Redis INCR로 순번 발급 (원자적 연산, Thread-Safe)
-     */
     public Long issueQueueNumber(Long groupId) {
         String key = "group:" + groupId + ":queue";
         return redisTemplate.opsForValue().increment(key);
     }
 
-    /**
-     * Redis 초기화
-     */
     public void initializeQueue(Long groupId, Integer currentParticipants) {
         String key = "group:" + groupId + ":queue";
         redisTemplate.opsForValue().set(key, String.valueOf(currentParticipants));
@@ -45,9 +31,6 @@ public class GroupQueueService {
         log.info("✅ [그룹 {}] Redis 초기화: {}", groupId, currentParticipants);
     }
 
-    /**
-     * Redis 키 존재 여부 확인
-     */
     public boolean hasQueue(Long groupId) {
         String key = "group:" + groupId + ":queue";
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));

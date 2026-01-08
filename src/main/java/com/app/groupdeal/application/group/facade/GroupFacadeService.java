@@ -65,26 +65,6 @@ public class GroupFacadeService {
     }
 
     @Transactional
-    public JoinGroupResponseDto joinGroup(Long groupId, Long userId, String nickname) {
-
-        Group group = groupService.findByIdWithLock(groupId);
-
-        if(group.getHostMemberId().equals(userId)) {
-            throw new BusinessException(ErrorType.CANNOT_JOIN_OWN_GROUP);
-        }
-
-        group.validateJoinable();
-
-        GroupMember joinedGroupMember = groupMemberService.joinGroup(groupId, userId, nickname);
-
-        groupService.increaseParticipant(groupId);
-
-        Group joinedGroup = groupService.findById(groupId);
-
-        return JoinGroupResponseDto.of(joinedGroup, joinedGroupMember);
-    }
-
-    @Transactional
     public LeaveGroupResponseDto leaveGroup(Long groupId, Long userId){
 
         Group group = groupService.findById(groupId);
@@ -110,13 +90,8 @@ public class GroupFacadeService {
         return LeaveGroupResponseDto.of(leftGroup, leftGroupMember);
     }
 
-    /**
-     * Redis INCR 방식 그룹 참여
-     * - 순서 보장
-     * - 대기열 없음
-     */
     @Transactional
-    public JoinGroupResponseDto joinGroupWithINCR(Long groupId, Long userId, String nickname) {
+    public JoinGroupResponseDto joinGroup(Long groupId, Long userId, String nickname) {
 
         Long queueNumber = queueService.issueQueueNumber(groupId);
         log.info("🎫 [그룹 {}] [유저 {}] 순번 발급: {}", groupId, userId, queueNumber);
@@ -127,18 +102,14 @@ public class GroupFacadeService {
 
         Integer targetParticipants = group.getTargetParticipants();
         if (queueNumber <= targetParticipants) {
-            // ✅ 순번이 목표 인원 이내 → 즉시 참여
-            GroupMember joinedGroupMember = groupMemberService.joinGroupWithINCR(groupId, userId, nickname, queueNumber.intValue());
 
-//            // 현재 참여자 수 증가
-//            groupService.increaseParticipant(groupId);
-//            Group joinedGroup = groupService.findById(groupId);
+            GroupMember joinedGroupMember = groupMemberService.joinGroup(groupId, userId, nickname, queueNumber.intValue());
+
             Group joinedGroup = group.withCurrentParticipants(queueNumber.intValue());
             log.info("✅ [유저 {}] 참여 완료 (순번: {})", userId, queueNumber);
 
             return JoinGroupResponseDto.ofWithQueue(joinedGroup, joinedGroupMember);
         } else {
-            // ❌ 순번이 목표 인원 초과 → 마감
             log.warn("❌ [유저 {}] 그룹 마감 (순번: {}, 목표: {})",
                     userId, queueNumber, targetParticipants);
             throw new BusinessException(ErrorType.GROUP_FULL);
