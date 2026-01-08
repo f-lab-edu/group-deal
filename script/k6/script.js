@@ -12,7 +12,7 @@ export let options = {
     scenarios: {
         concurrent_join: {
             executor: 'per-vu-iterations',
-            vus: 5000,
+            vus: 5,
             iterations: 1,
         },
     },
