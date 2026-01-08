@@ -51,11 +51,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 512M
+          cpus: '1.0'
+          memory: 1024M
         reservations:
-          cpus: '0.25'
-          memory: 256M
+          cpus: '1.0'
+          memory: 1024M
     restart: always
     ports:
       - "6379:6379"
