@@ -23,6 +23,10 @@ public class GroupMember extends BaseDomain {
     private LocalDateTime joinedAt;
     private LocalDateTime leftAt;
 
+    public Long getId() {
+        return this.groupMemberId;
+    }
+
 
     @Builder
     public GroupMember(Long groupMemberId, Long groupId, Long userId, String nickname, GroupMemberType groupMemberType,

@@ -1,5 +1,6 @@
 package com.app.groupdeal.application.group.facade;
 
+import com.app.groupdeal.application.group.dto.QueueResult;
 import com.app.groupdeal.application.group.service.GroupMemberService;
 import com.app.groupdeal.application.group.service.GroupQueueService;
 import com.app.groupdeal.application.group.service.GroupService;
@@ -114,6 +115,34 @@ public class GroupFacadeService {
                     userId, queueNumber, targetParticipants);
             throw new BusinessException(ErrorType.GROUP_FULL);
         }
+    }
+
+    @Transactional
+    public JoinGroupResponseDto joinGroupWithEvent(Long groupId, Long userId, String nickname) {
+
+        Group group = groupService.findById(groupId);
+        group.validateJoinable();
+
+        QueueResult result = queueService.issueQueueNumberWithEvent(
+                groupId,
+                userId,
+                nickname,
+                group.getTargetParticipants()
+        );
+
+        if (!result.isSuccess()) {
+            throw new BusinessException(ErrorType.GROUP_FULL);
+        }
+
+        log.info("✅ [유저 {}] 참여 요청 접수 (순번: {}, 이벤트: {})",
+                userId, result.getQueueNumber(), result.getEventId());
+
+        return JoinGroupResponseDto.pending(
+                group,
+                userId,
+                nickname,
+                result.getQueueNumber()
+        );
     }
 
 }

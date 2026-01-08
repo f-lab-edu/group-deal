@@ -25,6 +25,9 @@ public class JoinGroupResponseDto {
     private Integer currentParticipants;
     private Integer progressRate;
 
+    private ProcessingStatus processingStatus;
+    private String message;
+
     private MemberInfo joinMember;
 
     @Getter
@@ -40,6 +43,11 @@ public class JoinGroupResponseDto {
         private LocalDateTime joinedAt;
     }
 
+    public enum ProcessingStatus {
+        PENDING,
+        COMPLETED
+    }
+
     public static JoinGroupResponseDto ofWithQueue(Group group, GroupMember groupMember) {
         return JoinGroupResponseDto.builder()
                 .groupId(group.getGroupId())
@@ -48,12 +56,37 @@ public class JoinGroupResponseDto {
                 .targetParticipants(group.getTargetParticipants())
                 .currentParticipants(group.getCurrentParticipants())
                 .progressRate(group.calculateProgressRate())
+                .processingStatus(ProcessingStatus.COMPLETED)
                 .joinMember(MemberInfo.builder()
                         .userId(groupMember.getUserId())
                         .nickname(groupMember.getNickname())
                         .memberType(groupMember.getGroupMemberType())
                         .queueNumber(groupMember.getQueueNumber())
                         .joinedAt(groupMember.getJoinedAt())
+                        .build())
+                .build();
+    }
+
+    public static JoinGroupResponseDto pending(
+            Group group,
+            Long userId,
+            String nickname,
+            Long queueNumber) {
+        return JoinGroupResponseDto.builder()
+                .groupId(group.getGroupId())
+                .productName(group.getProductName())
+                .status(group.getStatus())
+                .targetParticipants(group.getTargetParticipants())
+                .currentParticipants(group.getCurrentParticipants())
+                .progressRate(group.calculateProgressRate())
+                .processingStatus(ProcessingStatus.PENDING)
+                .message("참여 요청이 접수되었습니다")
+                .joinMember(MemberInfo.builder()
+                        .userId(userId)
+                        .nickname(nickname)
+                        .memberType(null)
+                        .queueNumber(queueNumber.intValue())
+                        .joinedAt(null)
                         .build())
                 .build();
     }
@@ -66,6 +99,7 @@ public class JoinGroupResponseDto {
                 .targetParticipants(group.getTargetParticipants())
                 .currentParticipants(group.getCurrentParticipants())
                 .progressRate(group.calculateProgressRate())
+                .processingStatus(ProcessingStatus.COMPLETED)
                 .joinMember(MemberInfo.builder()
                         .userId(groupMember.getUserId())
                         .nickname(groupMember.getNickname())
