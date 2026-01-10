@@ -54,7 +54,7 @@ public class GroupQueueService {
         }
 
         String eventId = (String) result.get(2);
-        log.info("✅ [그룹 {}] [유저 {}] 순번 발급 + 이벤트 발행: {} (eventId: {})",
+        log.info("✅ [그룹 {}] [유저 {}] 순번 발급 + queueNumber: {} (eventId: {})",
                 groupId, userId, queueNumber, eventId);
 
         return QueueResult.success(queueNumber, eventId);

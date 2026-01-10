@@ -95,14 +95,14 @@ public class GroupJoinEventConsumer {
             String nickname = (String) event.get("nickname");
             Integer queueNumber = Integer.parseInt((String) event.get("queueNumber"));
 
-            log.info("⚙️ [이벤트 처리 시작] eventId={}, groupId={}, userId={}, queue={}",
+            log.info("⚙️ [이벤트 처리 시작] eventId={}, groupId={}, userId={}, queueNumber={}",
                     eventId, groupId, userId, queueNumber);
 
             GroupMember member = groupMemberService.joinGroup(groupId, userId, nickname, queueNumber);
             groupService.increaseParticipant(groupId);
 
-            log.info("✅ [이벤트 처리 완료] eventId={}, memberId={}",
-                    eventId, member.getGroupMemberId());
+            log.info("✅ [이벤트 처리 완료] eventId={}, userId={}, queueNumber={}, GroupMemberId={}",
+                    eventId, member.getUserId(), member.getQueueNumber(), member.getGroupMemberId());
 
             redisTemplate.opsForStream().acknowledge(STREAM_KEY, CONSUMER_GROUP, record.getId());
 
