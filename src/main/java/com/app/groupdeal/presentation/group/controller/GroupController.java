@@ -63,7 +63,7 @@ public class GroupController {
             @PathVariable Long groupId,
             @RequestParam Long userId,
             @RequestParam String nickname){
-        JoinGroupResponseDto response = groupFacadeService.joinGroup(groupId, userId, nickname);
+        JoinGroupResponseDto response = groupFacadeService.joinGroupWithEvent(groupId, userId, nickname);
         return ResponseEntity.ok(ApiResponse.success(response));
 
     }
